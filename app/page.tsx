@@ -18,11 +18,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 // Define the expected response type from verifyUserByPin mutation
-interface VerifyUserResponse {
-  success: boolean;
-  user: User | null; // Updated to allow null for invalid PIN
-  message: string; // Message for success or failure
-}
+
 
 export default function Home() {
   const [isVerifying, setIsVerifying] = useState<boolean>(false);

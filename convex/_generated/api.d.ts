@@ -17,7 +17,6 @@ import type * as activity from "../activity.js";
 import type * as backup from "../backup.js";
 import type * as loans from "../loans.js";
 import type * as migrations from "../migrations.js";
-import type * as restore from "../restore.js";
 import type * as users from "../users.js";
 
 /**
@@ -33,7 +32,6 @@ declare const fullApi: ApiFromModules<{
   backup: typeof backup;
   loans: typeof loans;
   migrations: typeof migrations;
-  restore: typeof restore;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

@@ -185,9 +185,12 @@ export default function AdminDashboard() {
     return users?.find((user: User) => user._id === userId);
   };
 
-  const getLoanUser = (userId: string): User | undefined => {
-    return users?.find((user: User) => user._id === userId);
-  };
+  const getLoanUser = useCallback(
+    (userId: string): User | undefined => {
+      return users?.find((user: User) => user._id === userId);
+    },
+    [users]
+  );
 
   const filteredApprovedQuickLoans = useMemo(() => {
     if (!approvedQuickLoans || !quickLoanSearchTerm.trim()) {
@@ -206,7 +209,7 @@ export default function AdminDashboard() {
           .includes(searchLower)
       );
     });
-  }, [approvedQuickLoans, quickLoanSearchTerm, users]);
+  }, [approvedQuickLoans, quickLoanSearchTerm, getLoanUser]);
 
   const handleQuickLoanSearch = useCallback((value: string) => {
     setQuickLoanSearchTerm(value);
@@ -229,7 +232,7 @@ export default function AdminDashboard() {
           .includes(searchLower)
       );
     });
-  }, [processingCoreLoans, coreLoanSearchTerm, users]);
+  }, [processingCoreLoans, coreLoanSearchTerm, getLoanUser]);
 
   const handleCoreLoanSearch = useCallback((value: string) => {
     setCoreLoanSearchTerm(value);
@@ -252,7 +255,7 @@ export default function AdminDashboard() {
           .includes(searchLower)
       );
     });
-  }, [clearedQuickLoans, clearedQuickLoanSearchTerm, users]);
+  }, [clearedQuickLoans, clearedQuickLoanSearchTerm, getLoanUser]);
 
   const handleClearedQuickLoanSearch = useCallback((value: string) => {
     setClearedQuickLoanSearchTerm(value);
