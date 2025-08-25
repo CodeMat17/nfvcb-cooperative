@@ -86,7 +86,9 @@ export function OTPInput({
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: index * 0.1 }}>
           <Input
-            ref={(el) => (inputRefs.current[index] = el)}
+            ref={(el) => {
+              inputRefs.current[index] = el;
+            }}
             type='password'
             inputMode='numeric'
             pattern='[0-9]*'
