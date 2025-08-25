@@ -1,103 +1,160 @@
-import Image from "next/image";
+"use client";
+
+import { OTPInput } from "@/components/otp-input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { UserDashboard } from "@/components/user-dashboard";
+import { api } from "@/convex/_generated/api";
+import { User } from "@/types"; // Ensure this type is defined in "@/types.ts"
+import { useMutation } from "convex/react";
+import { motion } from "framer-motion";
+import { TrendingUp, Users } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+
+// Define the expected response type from verifyUserByPin mutation
+interface VerifyUserResponse {
+  success: boolean;
+  user: User | null; // Updated to allow null for invalid PIN
+  message: string; // Message for success or failure
+}
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [isVerifying, setIsVerifying] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [otpKey, setOtpKey] = useState<number>(0);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const verifyUser = useMutation(api.users.verifyUserByPin);
+
+  const handleOTPComplete = async (otpValue: string) => {
+    if (isVerifying) return; // Prevent multiple verifications
+
+    setErrorMsg('');
+    setIsVerifying(true);
+
+    try {
+      const result = await verifyUser({ pin: otpValue });
+
+      if (result.success && result.user) {
+        setCurrentUser(result.user);
+        toast.success(`Welcome back, ${result.user.name}!`);
+      } else {
+        setErrorMsg(result.message);
+        toast.error(result.message);
+        setOtpKey((prev) => prev + 1); // Reset OTP input
+      }
+    } catch (error) {
+      toast.error(
+        "An error occurred while verifying your PIN. Please try again."
+      );
+      console.log(error);
+      setOtpKey((prev) => prev + 1); // Reset OTP input
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    toast.success("Logged out successfully");
+  };
+
+  if (currentUser) {
+    return <UserDashboard user={currentUser} onLogout={handleLogout} />;
+  }
+
+  return (
+    <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12'>
+      {/* Main Content */}
+      <main className='flex items-center justify-center p-3 sm:p-4'>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className='w-full max-w-md px-2 sm:px-0'>
+          <Card className='shadow-2xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm'>
+            <CardHeader className='text-center space-y-4'>
+              <div>
+                <CardTitle className='text-xl sm:text-2xl font-bold text-gray-900 dark:text-white'>
+                  <span className='font-normal'>Welcome to</span> <br />
+                  <span className='font-medium'>
+                    NFVCB Multipurpose Cooperative Society
+                  </span>
+                </CardTitle>
+                <CardDescription className='text-gray-600 dark:text-gray-300 mt-2'>
+                  Loan Management System
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className='space-y-6'>
+              <div className='text-center space-y-2'>
+                <p className='text-sm text-gray-600 dark:text-gray-400'>
+                  Enter your 6-digit PIN to access your account
+                </p>
+                <OTPInput
+                  key={otpKey}
+                  length={6}
+                  onComplete={handleOTPComplete}
+                  disabled={isVerifying}
+                />
+                {errorMsg &&
+                  <p className="text-sm text-red-500">{errorMsg}</p>
+                }
+              </div>
+
+              {isVerifying && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className='text-center'>
+                  <div className='inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400'>
+                    <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-current'></div>
+                    <span className='text-sm'>Verifying...</span>
+                  </div>
+                  
+                </motion.div>
+              )}
+
+              {/* Features Preview */}
+              <div className='grid grid-cols-2 gap-4 pt-6 border-t border-gray-200 dark:border-gray-700'>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className='text-center p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20'>
+                  <TrendingUp className='h-6 w-6 text-blue-600 dark:text-blue-400 mx-auto mb-2' />
+                  <p className='text-xs font-medium text-gray-700 dark:text-gray-300'>
+                    Quick Loans
+                  </p>
+                  <p className='text-xs text-gray-500 dark:text-gray-400'>
+                    6 months duration
+                  </p>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className='text-center p-3 rounded-lg bg-purple-50 dark:bg-purple-950/20'>
+                  <Users className='h-6 w-6 text-purple-600 dark:text-purple-400 mx-auto mb-2' />
+                  <p className='text-xs font-medium text-gray-700 dark:text-gray-300'>
+                    Core Loans
+                  </p>
+                  <p className='text-xs text-gray-500 dark:text-gray-400'>
+                    2 years duration
+                  </p>
+                </motion.div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }

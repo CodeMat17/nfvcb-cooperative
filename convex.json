@@ -1,0 +1,6 @@
+{
+  "functions": "convex",
+  "auth": {
+    "enabled": false
+  }
+}
