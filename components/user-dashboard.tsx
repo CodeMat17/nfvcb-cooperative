@@ -322,7 +322,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
                   user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_3) && (
                   <div>
                     <Button>
-                      <Link href='/sign-in'>Goto Admin Page</Link>
+                      <Link href='/sign-in'>Admin Page</Link>
                     </Button>
                   </div>
                 )}
