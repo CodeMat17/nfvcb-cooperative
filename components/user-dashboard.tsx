@@ -299,7 +299,6 @@ export function UserDashboard({ user }: UserDashboardProps) {
     }
   };
 
-
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 '>
       <div className='max-w-7xl mx-auto px-4 p-12'>
@@ -339,7 +338,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
                     {dayjs(user.dateJoined).format("MMM DD, YYYY")}
                   </p>
                 </div>
-             
+
                 <div className=''>
                   <Label className='text-sm font-medium text-gray-500 dark:text-gray-400'>
                     Monthly Contribution
@@ -348,7 +347,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
                     ₦{user.monthlyContribution?.toLocaleString() || "0"}
                   </p>
                 </div>
-                
+
                 <div className=''>
                   <Label className='text-sm font-medium text-gray-500 dark:text-gray-400'>
                     Total Contributions (as at {dayjs().format("MMM, YYYY")})
@@ -364,7 +363,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
 
         {/* Main Content */}
         <Tabs defaultValue='overview' className='space-y-4 sm:space-y-6'>
-          <TabsList className='grid w-full grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-8'>
+          <TabsList className='grid w-full grid-cols-3 gap-2 sm:gap-8'>
             <TabsTrigger
               value='overview'
               className='border border-gray-200 dark:border-gray-700'>
@@ -373,12 +372,12 @@ export function UserDashboard({ user }: UserDashboardProps) {
             <TabsTrigger
               value='loans'
               className='border border-gray-200 dark:border-gray-700'>
-              Loan Applications
+              <span className='hidden sm:block'>Loan</span> Applications
             </TabsTrigger>
             <TabsTrigger
               value='history'
               className='border border-gray-200 dark:border-gray-700'>
-              Activity History
+              <span className='hidden sm:block'>Activity</span> History
             </TabsTrigger>
           </TabsList>
 
@@ -447,6 +446,26 @@ export function UserDashboard({ user }: UserDashboardProps) {
                                       ? "text-red-800 dark:text-red-200"
                                       : "text-green-800 dark:text-green-200"
                                   }`}>
+                                  Loan Amount:
+                                </span>
+                                <span
+                                  className={`font-bold ${
+                                    isExpired
+                                      ? "text-red-800 dark:text-red-200"
+                                      : "text-green-800 dark:text-green-200"
+                                  }`}>
+                                  ₦
+                                  {currentQuickLoan.amount?.toLocaleString() ||
+                                    "N/A"}
+                                </span>
+                              </div>
+                              <div className='flex justify-between items-center'>
+                                <span
+                                  className={`font-medium ${
+                                    isExpired
+                                      ? "text-red-800 dark:text-red-200"
+                                      : "text-green-800 dark:text-green-200"
+                                  }`}>
                                   Total Repayment Amount:
                                 </span>
                                 <span
@@ -466,15 +485,15 @@ export function UserDashboard({ user }: UserDashboardProps) {
                                     ? "text-red-700 dark:text-red-300"
                                     : "text-green-700 dark:text-green-300"
                                 }`}>
+                                <p>
+                                  <strong>Interest Rate:</strong> 5%
+                                </p>
                                 <p className={isExpired ? "font-medium" : ""}>
                                   <strong>Expiry Date:</strong>{" "}
                                   {dayjs(currentQuickLoan.expiryDate).format(
                                     "MMM DD, YYYY"
                                   )}
                                   {isExpired && " (EXPIRED)"}
-                                </p>
-                                <p>
-                                  <strong>Interest Rate:</strong> 5%
                                 </p>
                               </div>
                               <div className='bg-white dark:bg-gray-800 rounded p-3 border'>
@@ -823,6 +842,15 @@ export function UserDashboard({ user }: UserDashboardProps) {
                                 "MMM DD, YYYY HH:mm"
                               )}
                             </p>
+                            {activity.loanAmount ? (
+                              <p className='text-xs sm:text-sm font-medium text-green-600 dark:text-green-400'>
+                                ₦{activity.loanAmount.toLocaleString()}
+                              </p>
+                            ) : (
+                              <p className='text-xs sm:text-sm text-gray-400'>
+                                Amount not available
+                              </p>
+                            )}
                           </div>
                         </div>
                         <Badge

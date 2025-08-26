@@ -55,4 +55,5 @@ export interface ActivityHistory {
   status: "processing" | "approved" | "rejected" | "cleared";
   date: string;
   createdAt: number;
+  loanAmount?: number;
 }
