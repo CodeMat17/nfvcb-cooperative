@@ -308,6 +308,15 @@ export function UserDashboard({ user }: UserDashboardProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className='mb-8'>
+          {(user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_1 ||
+            user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_2 ||
+            user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_3) && (
+            <div className="mb-4 flex justify-end">
+              <Button>
+                <Link href='/sign-in'>Admin Page</Link>
+              </Button>
+            </div>
+          )}
           <Card className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm'>
             <CardHeader>
               <CardTitle className='flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center'>
@@ -317,18 +326,9 @@ export function UserDashboard({ user }: UserDashboardProps) {
 
                   <span className='uppercase text-lg'>{user.name}</span>
                 </div>
-                {(user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_1 ||
-                  user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_2 ||
-                  user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_3) && (
-                  <div>
-                    <Button>
-                      <Link href='/sign-in'>Admin Page</Link>
-                    </Button>
-                  </div>
-                )}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="mt-0">
               <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4'>
                 <div>
                   <Label className='text-sm font-medium text-gray-500 dark:text-gray-400'>
