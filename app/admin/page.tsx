@@ -1399,13 +1399,13 @@ export default function AdminDashboard() {
             {/* Monthly Logs Tab */}
             <TabsContent value='monthly-logs' className='space-y-6'>
               <Card>
-                <CardHeader>
+                {/* <CardHeader>
                   <CardTitle>Monthly Contribution Increment Logs</CardTitle>
                   <CardDescription>
                     View logs of monthly contribution increments that occur on
                     the 10th of every month
                   </CardDescription>
-                </CardHeader>
+                </CardHeader> */}
                 <CardContent>
                   <MonthlyLogsTab />
                 </CardContent>

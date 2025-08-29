@@ -6,9 +6,17 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
 
+    console.log("=== CRON DEBUG INFO ===");
     console.log("Cron endpoint called");
     console.log("Auth header:", authHeader);
     console.log("Cron secret exists:", !!cronSecret);
+    console.log("Cron secret value:", cronSecret);
+    console.log("Expected format: Bearer", cronSecret);
+    console.log(
+      "Auth header matches expected:",
+      authHeader === `Bearer ${cronSecret}`
+    );
+    console.log("=== END DEBUG INFO ===");
 
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json(
