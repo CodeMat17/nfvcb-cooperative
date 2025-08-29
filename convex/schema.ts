@@ -26,6 +26,8 @@ export default defineSchema({
     clearedDate: v.optional(v.string()),
     interestRate: v.number(),
     totalRepayment: v.optional(v.number()),
+    disbursed: v.optional(v.boolean()),
+    dateDisbursed: v.optional(v.string()),
   })
     .index("by_user", ["userId"])
     .index("by_status", ["status"]),

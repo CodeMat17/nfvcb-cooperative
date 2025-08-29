@@ -4,6 +4,11 @@ import { NextResponse } from "next/server";
 const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
+  // Skip middleware for cron endpoints
+  if (req.nextUrl.pathname.includes("/api/cron")) {
+    return NextResponse.next();
+  }
+
   // Protect all routes starting with `/admin`
   if (isAdminRoute(req)) {
     const session = await auth();

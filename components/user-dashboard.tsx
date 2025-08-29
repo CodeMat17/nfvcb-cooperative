@@ -46,7 +46,7 @@ interface UserDashboardProps {
   onLogout: () => void;
 }
 
-export function UserDashboard({ user }: UserDashboardProps) {
+export function UserDashboard({ user, onLogout }: UserDashboardProps) {
   const [showQuickLoanForm, setShowQuickLoanForm] = useState(false);
   const [showCoreLoanForm, setShowCoreLoanForm] = useState(false);
   const [quickLoanAmount, setQuickLoanAmount] = useState<string>("");
@@ -308,15 +308,18 @@ export function UserDashboard({ user }: UserDashboardProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className='mb-8'>
-          {(user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_1 ||
-            user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_2 ||
-            user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_3) && (
-            <div className="mb-4 flex justify-end">
+          <div className='mb-4 flex justify-end gap-3 items-center'>
+            <Button onClick={onLogout}>Logout</Button>
+
+            {(user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_1 ||
+              user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_2 ||
+              user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_3) && (
               <Button>
                 <Link href='/sign-in'>Admin Page</Link>
               </Button>
-            </div>
-          )}
+            )}
+          </div>
+
           <Card className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm'>
             <CardHeader>
               <CardTitle className='flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center'>
@@ -328,7 +331,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
                 </div>
               </CardTitle>
             </CardHeader>
-            <CardContent className="mt-0">
+            <CardContent className='mt-0'>
               <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4'>
                 <div>
                   <Label className='text-sm font-medium text-gray-500 dark:text-gray-400'>
@@ -430,7 +433,9 @@ export function UserDashboard({ user }: UserDashboardProps) {
                                 }>
                                 {isExpired
                                   ? "Your quick loan has expired and requires immediate attention!"
-                                  : "Your quick loan application has been approved!"}
+                                  : currentQuickLoan?.disbursed
+                                    ? "Your quick loan application has been approved and disbursed."
+                                    : "Your quick loan application has been approved, awaiting disbursement."}
                               </AlertDescription>
                             </Alert>
                             <div

@@ -1,6 +1,16 @@
 "use client";
 
 import { CoreLoanPDF } from "@/components/core-loan-pdf";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,13 +38,280 @@ import {
   Edit,
   FileText,
   Loader2,
+  RefreshCw,
   Search,
   TrendingUp,
   Users,
   XCircle,
 } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
+
+// Monthly Logs Tab Component
+interface MonthlyLog {
+  userId: string;
+  userName: string;
+  userPin: string;
+  previousTotal: number;
+  newTotal: number;
+  increment: number;
+  success: boolean;
+  error?: string;
+  date: string;
+}
+
+interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalLogs: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+function MonthlyLogsTab() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [logs, setLogs] = useState<MonthlyLog[]>([]);
+  const [filteredLogs, setFilteredLogs] = useState<MonthlyLog[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
+
+  const fetchLogs = useCallback(async (page: number = 1) => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `/api/monthly-contribution?page=${page}&limit=50`
+      );
+      const data = await response.json();
+
+      if (data.success && data.status) {
+        // Create logs from the current user data
+        const userLogs: MonthlyLog[] = data.status.users.map(
+          (user: {
+            id: string;
+            name: string;
+            pin: string;
+            totalContribution: number;
+            nextIncrement: number;
+          }) => ({
+            userId: user.id,
+            userName: user.name,
+            userPin: user.pin,
+            previousTotal: user.totalContribution - user.nextIncrement,
+            newTotal: user.totalContribution,
+            increment: user.nextIncrement,
+            success: true,
+            date: data.status.currentDate,
+          })
+        );
+
+        setLogs(userLogs);
+        setFilteredLogs(userLogs);
+        setPagination({
+          currentPage: 1,
+          totalPages: Math.ceil(userLogs.length / 50),
+          totalLogs: userLogs.length,
+          hasNextPage: userLogs.length > 50,
+          hasPrevPage: false,
+        });
+      } else {
+        setLogs([]);
+        setPagination(null);
+      }
+    } catch (error) {
+      console.error("Error fetching logs:", error);
+      toast.error("Failed to fetch monthly logs");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch logs on component mount
+  useMemo(() => {
+    fetchLogs(currentPage);
+  }, [currentPage, fetchLogs]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    if (!value.trim()) {
+      setFilteredLogs(logs);
+      setPagination({
+        currentPage: 1,
+        totalPages: Math.ceil(logs.length / 50),
+        totalLogs: logs.length,
+        hasNextPage: logs.length > 50,
+        hasPrevPage: false,
+      });
+    } else {
+      const filtered = logs.filter(
+        (log) =>
+          log.userName.toLowerCase().includes(value.toLowerCase()) ||
+          log.userPin.includes(value)
+      );
+      setFilteredLogs(filtered);
+      setPagination({
+        currentPage: 1,
+        totalPages: Math.ceil(filtered.length / 50),
+        totalLogs: filtered.length,
+        hasNextPage: filtered.length > 50,
+        hasPrevPage: false,
+      });
+    }
+  };
+
+  return (
+    <div className='space-y-4'>
+      <div className='flex justify-between items-center'>
+        <div>
+          <h3 className='text-lg font-semibold'>Monthly Increment Logs</h3>
+          <p className='text-sm text-gray-600 dark:text-gray-400'>
+            Logs from monthly contribution increments on the 10th of each month
+          </p>
+        </div>
+        <Button
+          onClick={() => fetchLogs(currentPage)}
+          disabled={loading}
+          variant='outline'
+          size='sm'>
+          {loading ? (
+            <Loader2 className='h-4 w-4 animate-spin' />
+          ) : (
+            <RefreshCw className='h-4 w-4' />
+          )}
+          Refresh
+        </Button>
+      </div>
+
+      {/* Search Filter */}
+      <div className='relative'>
+        <Input
+          placeholder='Search by name or PIN...'
+          value={searchTerm}
+          onChange={(e) => handleSearch(e.target.value)}
+          className='pl-10 transition-all duration-200 focus:ring-2 focus:ring-blue-500'
+        />
+        <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
+      </div>
+
+      {loading ? (
+        <div className='flex justify-center items-center py-8'>
+          <Loader2 className='h-8 w-8 animate-spin text-blue-600' />
+          <span className='ml-2'>Loading logs...</span>
+        </div>
+      ) : filteredLogs.length === 0 ? (
+        <div className='text-center py-8'>
+          <FileText className='h-12 w-12 text-gray-400 mx-auto mb-4' />
+          <p className='text-gray-600 dark:text-gray-400'>
+            {searchTerm
+              ? "No logs found matching your search."
+              : "No monthly increment logs found yet."}
+          </p>
+          <p className='text-sm text-gray-500 dark:text-gray-500 mt-2'>
+            {searchTerm
+              ? "Try adjusting your search terms."
+              : "Logs will appear here after the first monthly increment on the 10th of the month."}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className='space-y-3'>
+            {filteredLogs.map((log, index) => (
+              <div
+                key={index}
+                className={`p-4 rounded-lg border ${
+                  log.success
+                    ? "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+                    : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
+                }`}>
+                <div className='flex justify-between items-start'>
+                  <div className='flex-1'>
+                    <div className='flex items-center gap-2 mb-2'>
+                      <span className='font-medium'>{log.userName}</span>
+                      <Badge
+                        className={
+                          log.success
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+                        }>
+                        {log.success ? "Success" : "Failed"}
+                      </Badge>
+                    </div>
+                    <div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-sm'>
+                      <div>
+                        <span className='text-gray-600 dark:text-gray-400'>
+                          Previous Total:
+                        </span>
+                        <p className='font-medium'>
+                          ₦{log.previousTotal?.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <span className='text-gray-600 dark:text-gray-400'>
+                          Increment:
+                        </span>
+                        <p className='font-medium'>
+                          ₦{log.increment?.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <span className='text-gray-600 dark:text-gray-400'>
+                          New Total:
+                        </span>
+                        <p className='font-medium'>
+                          ₦{log.newTotal?.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <span className='text-gray-600 dark:text-gray-400'>
+                          Date:
+                        </span>
+                        <p className='font-medium'>
+                          {new Date(log.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    {!log.success && log.error && (
+                      <div className='mt-2 p-2 bg-red-100 dark:bg-red-900/20 rounded text-sm text-red-700 dark:text-red-300'>
+                        Error: {log.error}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {pagination && pagination.totalPages > 1 && (
+            <div className='flex justify-center items-center gap-2 mt-6'>
+              <Button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={!pagination.hasPrevPage}
+                variant='outline'
+                size='sm'>
+                Previous
+              </Button>
+              <span className='text-sm text-gray-600 dark:text-gray-400'>
+                Page {pagination.currentPage} of {pagination.totalPages}
+              </span>
+              <Button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={!pagination.hasNextPage}
+                variant='outline'
+                size='sm'>
+                Next
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -48,6 +325,13 @@ export default function AdminDashboard() {
   const [viewingLoan, setViewingLoan] = useState<{
     loan: CoreLoan;
     user: User;
+  } | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{
+    type: "approve" | "reject" | "disburse" | "clear" | "reverse";
+    loanId: string;
+    loanType?: "quick" | "core";
+    user?: User;
+    amount?: number;
   } | null>(null);
 
   // Queries
@@ -76,6 +360,10 @@ export default function AdminDashboard() {
   const approveCoreLoan = useMutation(api.loans.approveCoreLoan);
   const rejectLoan = useMutation(api.loans.rejectLoan);
   const clearLoan = useMutation(api.loans.clearLoan);
+  const disburseQuickLoan = useMutation(api.loans.disburseQuickLoan);
+  const reverseQuickLoanDisbursement = useMutation(
+    api.loans.reverseQuickLoanDisbursement
+  );
   // const migrateLoans = useMutation(api.migrations.migrateLoansToQuickLoans);
 
   const filteredUsers =
@@ -86,63 +374,137 @@ export default function AdminDashboard() {
         user.pin.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
 
-  const handleApproveLoan = async (
+  const handleApproveLoan = (
     loanId: string,
-    loanType: "quick" | "core"
+    loanType: "quick" | "core",
+    user?: User,
+    amount?: number
   ) => {
+    setConfirmAction({
+      type: "approve",
+      loanId,
+      loanType,
+      user,
+      amount,
+    });
+  };
+
+  const handleRejectLoan = (
+    loanId: string,
+    loanType: "quick" | "core",
+    user?: User,
+    amount?: number
+  ) => {
+    setConfirmAction({
+      type: "reject",
+      loanId,
+      loanType,
+      user,
+      amount,
+    });
+  };
+
+  const handleClearLoan = (
+    loanId: string,
+    loanType: "quick" | "core",
+    user?: User,
+    amount?: number
+  ) => {
+    setConfirmAction({
+      type: "clear",
+      loanId,
+      loanType,
+      user,
+      amount,
+    });
+  };
+
+  const handleDisburseQuickLoan = (
+    loanId: string,
+    user?: User,
+    amount?: number
+  ) => {
+    setConfirmAction({
+      type: "disburse",
+      loanId,
+      user,
+      amount,
+    });
+  };
+
+  const handleReverseQuickLoanDisbursement = (
+    loanId: string,
+    user?: User,
+    amount?: number
+  ) => {
+    setConfirmAction({
+      type: "reverse",
+      loanId,
+      user,
+      amount,
+    });
+  };
+
+  const executeAction = async () => {
+    if (!confirmAction) return;
+
     try {
-      if (loanType === "quick") {
-        await approveQuickLoan({ loanId: loanId as Id<"quickLoans"> });
-        toast.success("Quick loan approved successfully!");
-      } else {
-        await approveCoreLoan({ loanId: loanId as Id<"coreLoans"> });
-        toast.success("Core loan approved successfully!");
+      switch (confirmAction.type) {
+        case "approve":
+          if (confirmAction.loanType === "quick") {
+            await approveQuickLoan({
+              loanId: confirmAction.loanId as Id<"quickLoans">,
+            });
+            toast.success("Quick loan approved successfully!");
+          } else {
+            await approveCoreLoan({
+              loanId: confirmAction.loanId as Id<"coreLoans">,
+            });
+            toast.success("Core loan approved successfully!");
+          }
+          break;
+        case "reject":
+          await rejectLoan({
+            loanId:
+              confirmAction.loanType === "quick"
+                ? (confirmAction.loanId as Id<"quickLoans">)
+                : (confirmAction.loanId as Id<"coreLoans">),
+            loanType: confirmAction.loanType!,
+          });
+          toast.success(
+            `${confirmAction.loanType === "quick" ? "Quick" : "Core"} loan rejected successfully`
+          );
+          break;
+        case "disburse":
+          await disburseQuickLoan({
+            loanId: confirmAction.loanId as Id<"quickLoans">,
+          });
+          toast.success("Quick loan disbursed successfully!");
+          break;
+        case "clear":
+          await clearLoan({
+            loanId:
+              confirmAction.loanType === "quick"
+                ? (confirmAction.loanId as Id<"quickLoans">)
+                : (confirmAction.loanId as Id<"coreLoans">),
+            loanType: confirmAction.loanType!,
+          });
+          toast.success(
+            `${confirmAction.loanType === "quick" ? "Quick" : "Core"} loan cleared successfully`
+          );
+          break;
+        case "reverse":
+          await reverseQuickLoanDisbursement({
+            loanId: confirmAction.loanId as Id<"quickLoans">,
+          });
+          toast.success("Quick loan disbursement reversed successfully!");
+          break;
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to approve loan");
-    }
-  };
-
-  const handleRejectLoan = async (
-    loanId: string,
-    loanType: "quick" | "core"
-  ) => {
-    try {
-      await rejectLoan({
-        loanId:
-          loanType === "quick"
-            ? (loanId as Id<"quickLoans">)
-            : (loanId as Id<"coreLoans">),
-        loanType,
-      });
-      toast.success(
-        `${loanType === "quick" ? "Quick" : "Core"} loan rejected successfully`
-      );
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to reject loan");
-    }
-  };
-
-  const handleClearLoan = async (
-    loanId: string,
-    loanType: "quick" | "core"
-  ) => {
-    try {
-      await clearLoan({
-        loanId:
-          loanType === "quick"
-            ? (loanId as Id<"quickLoans">)
-            : (loanId as Id<"coreLoans">),
-        loanType,
-      });
-      toast.success(
-        `${loanType === "quick" ? "Quick" : "Core"} loan cleared successfully`
-      );
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to clear loan");
+      toast.error("Failed to execute action");
+    } finally {
+      setConfirmAction(null);
     }
   };
 
@@ -263,6 +625,11 @@ export default function AdminDashboard() {
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12'>
+      <div className='flex justify-end px-4 mb-4'>
+        <Button asChild>
+          <Link href='/'>Home</Link>
+        </Button>
+      </div>
       {/* Main Content */}
       <main className='max-w-7xl mx-auto px-4'>
         {/* Stats Overview */}
@@ -377,14 +744,15 @@ export default function AdminDashboard() {
             value={selectedTab}
             onValueChange={setSelectedTab}
             className='space-y-6'>
-            <TabsList className='grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-5'>
+            <TabsList className='grid w-full grid-cols-1 sm:grid-cols-3 lg:grid-cols-6'>
               <TabsTrigger value='members'>Members</TabsTrigger>
               <TabsTrigger value='quick-loans'>Quick Loans</TabsTrigger>
               <TabsTrigger value='core-loans'>Core Loans</TabsTrigger>
               <TabsTrigger value='activity'>Activity</TabsTrigger>
               <TabsTrigger value='cleared-quick-loans'>
-                Cleared Quick Loans
+                Cleared Qk-Loans
               </TabsTrigger>
+              <TabsTrigger value='monthly-logs'>Monthly logs</TabsTrigger>
             </TabsList>
 
             {/* Members Tab */}
@@ -510,7 +878,12 @@ export default function AdminDashboard() {
                               <Button
                                 size='sm'
                                 onClick={() =>
-                                  handleApproveLoan(loan._id, "quick")
+                                  handleApproveLoan(
+                                    loan._id,
+                                    "quick",
+                                    user,
+                                    loan.amount
+                                  )
                                 }
                                 className='bg-green-600 hover:bg-green-700'>
                                 <Check className='h-4 w-4 mr-1' />
@@ -520,7 +893,12 @@ export default function AdminDashboard() {
                                 size='sm'
                                 variant='outline'
                                 onClick={() =>
-                                  handleRejectLoan(loan._id, "quick")
+                                  handleRejectLoan(
+                                    loan._id,
+                                    "quick",
+                                    user,
+                                    loan.amount
+                                  )
                                 }>
                                 <Ban className='h-4 w-4 mr-1' />
                                 Reject
@@ -562,6 +940,14 @@ export default function AdminDashboard() {
                                 {dayjs(loan.expiryDate).format("MMM DD, YYYY")}
                                 {isExpired && " (EXPIRED)"}
                               </p>
+                              {loan.disbursed && (
+                                <p className='text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium'>
+                                  Disbursed:{" "}
+                                  {dayjs(loan.dateDisbursed).format(
+                                    "MMM DD, YYYY"
+                                  )}
+                                </p>
+                              )}
                             </div>
                             <div className='flex items-center flex-wrap gap-2'>
                               <Badge
@@ -572,17 +958,55 @@ export default function AdminDashboard() {
                                 }>
                                 {isExpired ? "Expired" : "Approved"}
                               </Badge>
+                              {loan.disbursed && (
+                                <div className='relative'>
+                                  <Badge className='bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'>
+                                    Disbursed
+                                  </Badge>
+                                  <Button
+                                    size='icon'
+                                    variant='ghost'
+                                    onClick={() =>
+                                      handleReverseQuickLoanDisbursement(
+                                        loan._id,
+                                        user,
+                                        loan.amount
+                                      )
+                                    }
+                                    className='absolute -top-4 right-2 h-6 w-6 p-0 bg-red-100 hover:bg-red-200 text-red-600 hover:text-red-700 border border-red-300 rounded-full'>
+                                    <XCircle className='h-3 w-3' />
+                                  </Button>
+                                </div>
+                              )}
+                              {!loan.disbursed && (
+                                <Button
+                                  size='sm'
+                                  onClick={() =>
+                                    handleDisburseQuickLoan(
+                                      loan._id,
+                                      user,
+                                      loan.amount
+                                    )
+                                  }
+                                  className='bg-purple-600 hover:bg-purple-700'>
+                                  Disburse
+                                </Button>
+                              )}
                               <Button
                                 size='sm'
                                 onClick={() =>
-                                  handleClearLoan(loan._id, "quick")
+                                  handleClearLoan(
+                                    loan._id,
+                                    "quick",
+                                    user,
+                                    loan.amount
+                                  )
                                 }
                                 className={
                                   isExpired
                                     ? "bg-red-600 hover:bg-red-700"
                                     : "bg-blue-600 hover:bg-blue-700"
                                 }>
-                                <CheckCircle className='h-4 w-4 mr-1' />
                                 Clear
                               </Button>
                             </div>
@@ -652,7 +1076,12 @@ export default function AdminDashboard() {
                               <Button
                                 size='sm'
                                 onClick={() =>
-                                  handleApproveLoan(loan._id, "core")
+                                  handleApproveLoan(
+                                    loan._id,
+                                    "core",
+                                    user,
+                                    loan.amountRequested
+                                  )
                                 }
                                 className='bg-green-600 hover:bg-green-700'>
                                 <Check className='h-4 w-4 mr-1' />
@@ -662,7 +1091,12 @@ export default function AdminDashboard() {
                                 size='sm'
                                 variant='outline'
                                 onClick={() =>
-                                  handleRejectLoan(loan._id, "core")
+                                  handleRejectLoan(
+                                    loan._id,
+                                    "core",
+                                    user,
+                                    loan.amountRequested
+                                  )
                                 }>
                                 <Ban className='h-4 w-4 mr-1' />
                                 Reject
@@ -707,7 +1141,12 @@ export default function AdminDashboard() {
                               <Button
                                 size='sm'
                                 onClick={() =>
-                                  handleClearLoan(loan._id, "core")
+                                  handleClearLoan(
+                                    loan._id,
+                                    "core",
+                                    user,
+                                    loan.amountRequested
+                                  )
                                 }
                                 className='bg-blue-600 hover:bg-blue-700'>
                                 <CheckCircle className='h-4 w-4 mr-1' />
@@ -956,6 +1395,22 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            {/* Monthly Logs Tab */}
+            <TabsContent value='monthly-logs' className='space-y-6'>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Monthly Contribution Increment Logs</CardTitle>
+                  <CardDescription>
+                    View logs of monthly contribution increments that occur on
+                    the 10th of every month
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <MonthlyLogsTab />
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
 
           {/* Migration Section */}
@@ -1023,6 +1478,90 @@ export default function AdminDashboard() {
           </motion.div>
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <AlertDialog
+        open={!!confirmAction}
+        onOpenChange={(open) => !open && setConfirmAction(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmAction?.type === "approve" && "Confirm Loan Approval"}
+              {confirmAction?.type === "reject" && "Confirm Loan Rejection"}
+              {confirmAction?.type === "disburse" &&
+                "Confirm Loan Disbursement"}
+              {confirmAction?.type === "clear" && "Confirm Loan Clearance"}
+              {confirmAction?.type === "reverse" &&
+                "Confirm Disbursement Reversal"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmAction?.type === "approve" && (
+                <>
+                  Are you sure you want to approve the{" "}
+                  {confirmAction.loanType === "quick" ? "quick" : "core"} loan
+                  for <strong>{confirmAction.user?.name}</strong>?
+                  <br />
+                  <strong>
+                    Amount: ₦{confirmAction.amount?.toLocaleString()}
+                  </strong>
+                </>
+              )}
+              {confirmAction?.type === "reject" && (
+                <>
+                  Are you sure you want to reject the{" "}
+                  {confirmAction.loanType === "quick" ? "quick" : "core"} loan
+                  for <strong>{confirmAction.user?.name}</strong>?
+                  <br />
+                  <strong>
+                    Amount: ₦{confirmAction.amount?.toLocaleString()}
+                  </strong>
+                </>
+              )}
+              {confirmAction?.type === "disburse" && (
+                <>
+                  Are you sure you want to disburse the quick loan to{" "}
+                  <strong>{confirmAction.user?.name}</strong>?
+                  <br />
+                  <strong>
+                    Amount: ₦{confirmAction.amount?.toLocaleString()}
+                  </strong>
+                </>
+              )}
+              {confirmAction?.type === "clear" && (
+                <>
+                  Are you sure you want to clear the{" "}
+                  {confirmAction.loanType === "quick" ? "quick" : "core"} loan
+                  for <strong>{confirmAction.user?.name}</strong>?
+                  <br />
+                  <strong>
+                    Amount: ₦{confirmAction.amount?.toLocaleString()}
+                  </strong>
+                </>
+              )}
+              {confirmAction?.type === "reverse" && (
+                <>
+                  Are you sure you want to reverse the disbursement for{" "}
+                  <strong>{confirmAction.user?.name}</strong>?
+                  <br />
+                  <strong>
+                    Amount: ₦{confirmAction.amount?.toLocaleString()}
+                  </strong>
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={executeAction}>
+              {confirmAction?.type === "approve" && "Approve"}
+              {confirmAction?.type === "reject" && "Reject"}
+              {confirmAction?.type === "disburse" && "Disburse"}
+              {confirmAction?.type === "clear" && "Clear"}
+              {confirmAction?.type === "reverse" && "Reverse"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

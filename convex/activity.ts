@@ -5,14 +5,13 @@ import { query } from "./_generated/server";
 export const getUserActivityHistory = query({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
-    console.log("getUserActivityHistory called with userId:", args.userId);
+ 
 
     const activities = await ctx.db
       .query("activityHistory")
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .collect();
 
-    console.log("Found activities:", activities.length);
 
     // Fetch loan details for each activity
     const activitiesWithLoanDetails = await Promise.all(

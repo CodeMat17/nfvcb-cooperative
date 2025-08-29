@@ -21,6 +21,8 @@ export interface QuickLoan {
   clearedDate?: string;
   interestRate: number;
   totalRepayment?: number;
+  disbursed?: boolean;
+  dateDisbursed?: string;
 }
 
 export interface CoreLoan {

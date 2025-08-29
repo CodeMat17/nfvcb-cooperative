@@ -224,6 +224,72 @@ export const clearLoan = mutation({
   },
 });
 
+export const disburseQuickLoan = mutation({
+  args: { loanId: v.id("quickLoans") },
+  handler: async (ctx, args) => {
+    const loan = await ctx.db.get(args.loanId);
+    if (!loan) throw new Error("Loan not found");
+
+    if (loan.status !== "approved") {
+      throw new Error("Only approved loans can be disbursed");
+    }
+
+    if (loan.disbursed) {
+      throw new Error("Loan has already been disbursed");
+    }
+
+    const now = Date.now();
+    const today = dayjs().format("YYYY-MM-DD");
+
+    await ctx.db.patch(args.loanId, {
+      disbursed: true,
+      dateDisbursed: today,
+    });
+
+    // Add to activity history
+    await ctx.db.insert("activityHistory", {
+      userId: loan.userId,
+      loanType: "quick",
+      loanId: args.loanId,
+      action: "Quick Loan Disbursed",
+      status: "approved",
+      date: today,
+      createdAt: now,
+    });
+  },
+});
+
+export const reverseQuickLoanDisbursement = mutation({
+  args: { loanId: v.id("quickLoans") },
+  handler: async (ctx, args) => {
+    const loan = await ctx.db.get(args.loanId);
+    if (!loan) throw new Error("Loan not found");
+
+    if (!loan.disbursed) {
+      throw new Error("Loan has not been disbursed");
+    }
+
+    const now = Date.now();
+    const today = dayjs().format("YYYY-MM-DD");
+
+    await ctx.db.patch(args.loanId, {
+      disbursed: false,
+      dateDisbursed: undefined,
+    });
+
+    // Add to activity history
+    await ctx.db.insert("activityHistory", {
+      userId: loan.userId,
+      loanType: "quick",
+      loanId: args.loanId,
+      action: "Quick Loan Disbursement Reversed",
+      status: "approved",
+      date: today,
+      createdAt: now,
+    });
+  },
+});
+
 export const getUserLoans = query({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
