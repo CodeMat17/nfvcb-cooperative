@@ -1,21 +1,22 @@
 import { api } from "@/convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 // Initialize Convex client
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Check if today is the 10th day of the month (TEMPORARILY CHANGED FOR TESTING)
     const today = new Date();
     const currentHour = today.getHours();
     const currentMinute = today.getMinutes();
 
-    // TEMPORARY: Allow execution now for testing
-    const isTestTime = true; // Allow immediate execution
+    // TEMPORARY: Allow execution at 6:20 PM today for testing
+    const isTestTime = currentHour === 18 && currentMinute === 20; // 6:20 PM
     const isTenthDay = today.getDate() === 10;
 
+    // For production testing, check if it's the test time
     if (!isTenthDay && !isTestTime) {
       return NextResponse.json(
         {
@@ -154,7 +155,7 @@ export async function GET() {
     const today = new Date();
     const currentHour = today.getHours();
     const currentMinute = today.getMinutes();
-    const isTestTime = false; // Only run on 10th day
+    const isTestTime = currentHour === 18 && currentMinute === 20; // 6:20 PM
     const isTenthDay = today.getDate() === 10;
     const nextTenthDay = new Date(
       today.getFullYear(),
