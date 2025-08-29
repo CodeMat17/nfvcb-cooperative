@@ -12,8 +12,8 @@ export async function POST() {
     const currentHour = today.getHours();
     const currentMinute = today.getMinutes();
 
-    // TEMPORARY: Allow execution at 7:38 PM today for testing
-    const isTestTime = currentHour === 19 && currentMinute === 38; // 7:38 PM
+    // TEMPORARY: Allow execution now for testing
+    const isTestTime = true; // Allow immediate execution
     const isTenthDay = today.getDate() === 10;
 
     // For production testing, check if it's the test time
@@ -155,7 +155,7 @@ export async function GET() {
     const today = new Date();
     const currentHour = today.getHours();
     const currentMinute = today.getMinutes();
-    const isTestTime = currentHour === 19 && currentMinute === 38; // 7:38 PM
+    const isTestTime = true; // Allow immediate execution
     const isTenthDay = today.getDate() === 10;
     const nextTenthDay = new Date(
       today.getFullYear(),
