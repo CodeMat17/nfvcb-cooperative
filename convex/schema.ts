@@ -9,6 +9,7 @@ export default defineSchema({
     pin: v.string(),
     monthlyContribution: v.number(),
     totalContribution: v.number(),
+    lastContributionUpdate: v.optional(v.string()),
   }).index("by_pin", ["pin"]),
 
   quickLoans: defineTable({

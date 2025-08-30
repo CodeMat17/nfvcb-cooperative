@@ -57,6 +57,7 @@ export const updateUser = mutation({
     pin: v.optional(v.string()),
     monthlyContribution: v.optional(v.number()),
     totalContribution: v.optional(v.number()),
+    lastContributionUpdate: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { userId, ...updates } = args;

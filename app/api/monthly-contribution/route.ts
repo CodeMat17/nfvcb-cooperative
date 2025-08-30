@@ -7,30 +7,10 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export async function POST() {
   try {
-    // Check if today is the 10th day of the month (TEMPORARILY CHANGED FOR TESTING)
     const today = new Date();
-    const currentHour = today.getHours();
-    const currentMinute = today.getMinutes();
 
-    // TEMPORARY: Allow execution at 8:09 PM today for testing
-    const isTestTime = currentHour === 20 && currentMinute === 9; // 8:09 PM
-    const isTenthDay = today.getDate() === 10;
-
-    // For production testing, check if it's the test time
-    if (!isTenthDay && !isTestTime) {
-      return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Monthly contribution increment only runs on the 10th day of each month (or during test time)",
-          currentDate: today.toISOString(),
-          isTenthDay: false,
-          isTestTime: false,
-          currentTime: `${currentHour}:${currentMinute}`,
-        },
-        { status: 200 }
-      );
-    }
+    // For manual admin triggers, we don't restrict by date
+    // This allows admins to trigger updates when needed
 
     // Get all users from the database
     const allUsers = await convex.query(api.users.getAllUsers);
@@ -40,7 +20,8 @@ export async function POST() {
         {
           success: false,
           message: "No users found in the database",
-          usersProcessed: 0,
+          updatedUsers: 0,
+          totalUsers: 0,
         },
         { status: 404 }
       );
@@ -57,10 +38,11 @@ export async function POST() {
         const newTotalContribution =
           user.totalContribution + user.monthlyContribution;
 
-        // Update the user's total contribution
+        // Update the user's total contribution and last update date
         await convex.mutation(api.users.updateUser, {
           userId: user._id,
           totalContribution: newTotalContribution,
+          lastContributionUpdate: today.toISOString(),
         });
 
         // Log the increment for audit purposes
@@ -79,6 +61,9 @@ export async function POST() {
         });
 
         successCount++;
+
+        // Add a small delay to make the progress visible
+        await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (error) {
         console.error(
           `Error updating user ${user.name} (PIN: ${user.pin}):`,
@@ -117,6 +102,8 @@ export async function POST() {
       {
         success: true,
         message: `Monthly contribution increment completed successfully on ${today.toDateString()}`,
+        updatedUsers: successCount,
+        totalUsers: allUsers.length,
         summary,
         results,
       },

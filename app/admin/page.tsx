@@ -625,7 +625,13 @@ export default function AdminDashboard() {
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12'>
-      <div className='flex justify-end px-4 mb-4'>
+      <div className='flex justify-between items-center px-4 mb-4'>
+        <Button asChild variant='outline'>
+          <Link href='/admin/contribution-update-trigger'>
+            <TrendingUp className='h-4 w-4 mr-2' />
+            Update Contributions
+          </Link>
+        </Button>
         <Button asChild>
           <Link href='/'>Home</Link>
         </Button>
@@ -808,6 +814,14 @@ export default function AdminDashboard() {
                             <p className='text-xs text-gray-600 dark:text-gray-400'>
                               Total: ₦{user.totalContribution.toLocaleString()}
                             </p>
+                            {user.lastContributionUpdate && (
+                              <p className='text-xs text-gray-500 dark:text-gray-500'>
+                                Updated:{" "}
+                                {dayjs(user.lastContributionUpdate).format(
+                                  "MMM D, YYYY"
+                                )}
+                              </p>
+                            )}
                           </div>
                           <Button
                             variant='outline'

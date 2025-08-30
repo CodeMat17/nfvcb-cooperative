@@ -7,6 +7,7 @@ export interface User {
   pin: string;
   monthlyContribution: number;
   totalContribution: number;
+  lastContributionUpdate?: string;
 }
 
 export interface QuickLoan {

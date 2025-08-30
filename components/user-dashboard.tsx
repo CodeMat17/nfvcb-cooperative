@@ -353,35 +353,17 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
 
                 <div className=''>
                   <Label className='text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    Total Contributions (as at{" "}
-                    {(() => {
-                      const today = new Date();
-                      const currentDay = today.getDate();
-                      const currentMonth = today.getMonth();
-                      const currentYear = today.getFullYear();
-
-                      // If we're past the 10th of this month, show this month's 10th
-                      // If we're before the 10th, show last month's 10th
-                      if (currentDay >= 10) {
-                        return dayjs(
-                          new Date(currentYear, currentMonth, 10)
-                        ).format("MMM D, YYYY");
-                      } else {
-                        // Go to last month's 10th
-                        const lastMonth =
-                          currentMonth === 0 ? 11 : currentMonth - 1;
-                        const lastMonthYear =
-                          currentMonth === 0 ? currentYear - 1 : currentYear;
-                        return dayjs(
-                          new Date(lastMonthYear, lastMonth, 10)
-                        ).format("MMM D, YYYY");
-                      }
-                    })()}
-                    )
+                    Total Contributions
                   </Label>
                   <p className='font-semibold text-blue-600 dark:text-blue-400'>
                     ₦{user.totalContribution?.toLocaleString() || "0"}
                   </p>
+                  {user.lastContributionUpdate && (
+                    <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                      Last updated:{" "}
+                      {dayjs(user.lastContributionUpdate).format("MMM D, YYYY")}
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
