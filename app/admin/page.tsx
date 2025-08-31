@@ -941,27 +941,31 @@ export default function AdminDashboard() {
                               <p className='font-medium text-gray-900 dark:text-white truncate'>
                                 {user?.name}
                               </p>
-                              <p className='text-xs sm:text-sm text-gray-600 dark:text-gray-400'>
+                              <p className='text-sm text-muted-foreground'>
                                 Amount: ₦{loan.amount.toLocaleString()}
                               </p>
-                              <p
-                                className={`text-xs sm:text-sm ${
-                                  isExpired
-                                    ? "text-red-600 dark:text-red-400 font-medium"
-                                    : "text-gray-600 dark:text-gray-400"
-                                }`}>
-                                Expires:{" "}
-                                {dayjs(loan.expiryDate).format("MMM DD, YYYY")}
-                                {isExpired && " (EXPIRED)"}
+                              <p className='text-sm text-muted-foreground'>
+                                Date Applied:{" "}
+                                {dayjs(loan.dateApplied).format("MMM DD, YYYY")}
                               </p>
                               {loan.disbursed && (
-                                <p className='text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium'>
+                                <p className='text-sm text-green-600 dark:text-green-400 font-medium'>
                                   Disbursed:{" "}
                                   {dayjs(loan.dateDisbursed).format(
                                     "MMM DD, YYYY"
                                   )}
                                 </p>
                               )}
+                              <p
+                                className={`text-sm ${
+                                  isExpired
+                                    ? "text-red-600 dark:text-red-400 font-medium"
+                                    : "text-muted-foreground"
+                                }`}>
+                                Expires:{" "}
+                                {dayjs(loan.expiryDate).format("MMM DD, YYYY")}
+                                {isExpired && " (EXPIRED)"}
+                              </p>
                             </div>
                             <div className='flex items-center flex-wrap gap-2'>
                               <Badge
@@ -1427,40 +1431,7 @@ export default function AdminDashboard() {
             </TabsContent>
           </Tabs>
 
-          {/* Migration Section */}
-          {/* <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className='mt-8'>
-            <Card className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm'>
-              <CardHeader>
-                <CardTitle className='flex items-center space-x-2'>
-                  <AlertTriangle className='h-5 w-5 text-orange-600' />
-                  <span>Database Migration</span>
-                </CardTitle>
-                <CardDescription>
-                  Migrate data from old loans table to quickLoans table
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  onClick={async () => {
-                    try {
-                      const result = await migrateLoans();
-                      toast.success(result.message);
-                    } catch (error) {
-                      console.log(error);
-                      toast.error("Migration failed");
-                    }
-                  }}
-                  variant='outline'
-                  className='w-full'>
-                  Migrate Loans to QuickLoans
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div> */}
+    
         </motion.div>
       </main>
 

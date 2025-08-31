@@ -592,7 +592,7 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                         </Alert>
                         <Button
                           onClick={() => setShowCoreLoanForm(true)}
-                          variant='outline'
+                          // variant='outline'
                           className='w-full'>
                           Apply for Another Core Loan
                         </Button>
@@ -603,7 +603,7 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                   return (
                     <Button
                       onClick={() => setShowCoreLoanForm(true)}
-                      variant='outline'
+                      // variant='outline'
                       className='w-full'>
                       Apply for Core Loan
                     </Button>
