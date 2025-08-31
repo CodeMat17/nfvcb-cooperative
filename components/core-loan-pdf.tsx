@@ -44,14 +44,15 @@ export function CoreLoanPDF({ loan, user }: CoreLoanPDFProps) {
                 size: A4;
                 margin: 8mm;
               }
-              body {
-                font-family: Arial, sans-serif;
-                font-size: 10px;
-                line-height: 1.3;
-                color: #000;
-                margin: 0;
-                padding: 0;
-              }
+                             body {
+                 font-family: Arial, sans-serif;
+                 font-size: 10px;
+                 line-height: 1.3;
+                 color: #000;
+                 background-color: #ffffff;
+                 margin: 0;
+                 padding: 0;
+               }
               .no-print {
                 display: none !important;
               }
@@ -67,14 +68,15 @@ export function CoreLoanPDF({ loan, user }: CoreLoanPDFProps) {
               .section {
                 margin-bottom: 12px;
               }
-              .section-title {
-                font-weight: bold;
-                font-size: 13px;
-                margin-bottom: 6px;
-                background-color: #f3f4f6;
-                padding: 4px 8px;
-                border-left: 3px solid #3b82f6;
-              }
+                             .section-title {
+                 font-weight: bold;
+                 font-size: 13px;
+                 margin-bottom: 6px;
+                 background-color: #f3f4f6;
+                 padding: 4px 8px;
+                 border-left: 3px solid #3b82f6;
+                 color: #1f2937;
+               }
               .form-grid {
                 display: grid;
                 grid-template-columns: 1fr 1fr 1fr;
@@ -86,20 +88,21 @@ export function CoreLoanPDF({ loan, user }: CoreLoanPDFProps) {
                 display: flex;
                 align-items: center;
               }
-              .field-label {
-                font-weight: bold;
-                color: #374151;
-                min-width: 90px;
-                margin-right: 8px;
-                font-size: 10px;
-              }
-              .field-value {
-                border-bottom: 1px solid #d1d5db;
-                padding: 3px 0;
-                min-height: 18px;
-                flex: 1;
-                font-size: 10px;
-              }
+                             .field-label {
+                 font-weight: bold;
+                 color: #1f2937;
+                 min-width: 90px;
+                 margin-right: 8px;
+                 font-size: 10px;
+               }
+                             .field-value {
+                 border-bottom: 1px solid #d1d5db;
+                 padding: 3px 0;
+                 min-height: 18px;
+                 flex: 1;
+                 font-size: 10px;
+                 color: #000;
+               }
               .guarantor-section {
                 border: 1px solid #d1d5db;
                 padding: 8px;
@@ -126,9 +129,9 @@ export function CoreLoanPDF({ loan, user }: CoreLoanPDFProps) {
                 border-top: 1px solid #d1d5db;
                 padding-top: 8px;
               }
-              h1 { font-size: 18px; margin: 0; }
-              h4 { font-size: 11px; margin: 0 0 5px 0; }
-              p { margin: 3px 0; }
+                             h1 { font-size: 18px; margin: 0; color: #000; }
+               h4 { font-size: 11px; margin: 0 0 5px 0; color: #1f2937; }
+               p { margin: 3px 0; color: #374151; }
               .watermark {
                 position: fixed;
                 top: 50%;
@@ -344,8 +347,16 @@ export function CoreLoanPDF({ loan, user }: CoreLoanPDFProps) {
 
       <div
         ref={printRef}
-        className='bg-white p-8 border rounded-lg relative'
-        style={{ fontSize: "12px", lineHeight: "1.4" }}>
+        className='bg-white p-8 border rounded-lg relative dark:bg-white'
+        style={
+          {
+            fontSize: "12px",
+            lineHeight: "1.4",
+            color: "#000",
+            backgroundColor: "#ffffff",
+            "--tw-text-opacity": "1",
+          } as React.CSSProperties
+        }>
         {/* Watermark */}
         <div
           className='absolute inset-0 pointer-events-none select-none'
@@ -368,10 +379,16 @@ export function CoreLoanPDF({ loan, user }: CoreLoanPDFProps) {
         <div className='relative z-10'>
           {/* Header */}
           <div className='header mb-6'>
-            <h1 style={{ fontSize: "20px", fontWeight: "bold", margin: "0" }}>
+            <h1
+              style={{
+                fontSize: "20px",
+                fontWeight: "bold",
+                margin: "0",
+                color: "#000",
+              }}>
               NFVCB MULTIPURPOSE COOPERATIVE SOCIETY
             </h1>
-            <p style={{ fontSize: "14px", margin: "4px 0", color: "#6b7280" }}>
+            <p style={{ fontSize: "14px", margin: "4px 0", color: "#374151" }}>
               Core Loan Application Form
             </p>
             <p style={{ fontSize: "11px", margin: "3px 0", color: "#6b7280" }}>
@@ -447,6 +464,7 @@ export function CoreLoanPDF({ loan, user }: CoreLoanPDFProps) {
                 marginBottom: "4px",
                 marginTop: "8px",
                 fontWeight: "bold",
+                color: "#1f2937",
               }}>
               Member Information
             </div>
