@@ -367,12 +367,14 @@ export default function AdminDashboard() {
   // const migrateLoans = useMutation(api.migrations.migrateLoansToQuickLoans);
 
   const filteredUsers =
-    users?.filter(
-      (user: User) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.ippis.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.pin.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || [];
+    users
+      ?.filter(
+        (user: User) =>
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.ippis.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.pin.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      .sort((a, b) => a.name.localeCompare(b.name)) || [];
 
   const handleApproveLoan = (
     loanId: string,
@@ -1430,8 +1432,6 @@ export default function AdminDashboard() {
               </Card>
             </TabsContent>
           </Tabs>
-
-    
         </motion.div>
       </main>
 

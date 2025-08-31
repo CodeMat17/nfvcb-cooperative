@@ -365,8 +365,12 @@ export const getQuickLoansByStatus = query({
       });
     }
 
-    // For other statuses, sort by creation time (most recent first)
-    return loans.sort((a, b) => b._creationTime - a._creationTime);
+    // For other statuses, sort by the most recent relevant date (most recent first)
+    return loans.sort((a, b) => {
+      const aDate = a.dateApproved || a.dateApplied;
+      const bDate = b.dateApproved || b.dateApplied;
+      return dayjs(bDate).valueOf() - dayjs(aDate).valueOf();
+    });
   },
 });
 

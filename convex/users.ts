@@ -68,6 +68,6 @@ export const updateUser = mutation({
 export const getAllUsers = query({
   handler: async (ctx) => {
     const users = await ctx.db.query("users").collect();
-    return users.sort((a, b) => b._creationTime - a._creationTime);
+    return users.sort((a, b) => a.name.localeCompare(b.name));
   },
 });
