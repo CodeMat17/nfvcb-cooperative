@@ -313,7 +313,8 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
 
             {(user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_1 ||
               user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_2 ||
-              user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_3) && (
+              user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_3 ||
+              user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_4) && (
               <Button>
                 <Link href='/sign-in'>Admin Page</Link>
               </Button>
