@@ -1,15 +1,7 @@
 "use client";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,6 +12,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -29,12 +27,21 @@ import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import {
   AlertTriangle,
+  ArrowRight,
   Building2,
+  Calendar,
   CheckCircle,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   CreditCard,
+  ExternalLink,
   FileText,
+  History,
+  LayoutDashboard,
+  LogOut,
   TrendingUp,
+  Wallet,
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
@@ -45,6 +52,19 @@ interface UserDashboardProps {
   user: UserType;
   onLogout: () => void;
 }
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.07, delayChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { type: "spring" as const, damping: 20, stiffness: 280 } },
+};
 
 export function UserDashboard({ user, onLogout }: UserDashboardProps) {
   const [showQuickLoanForm, setShowQuickLoanForm] = useState(false);
@@ -101,7 +121,6 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
     (loan) => loan.status === "processing" || loan.status === "approved"
   );
 
-  // Pagination logic
   const loansPerPage = 10;
   const quickLoansToShow = userLoans?.quickLoans?.slice(
     (quickLoanPage - 1) * loansPerPage,
@@ -127,18 +146,15 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
       toast.error("Please select a loan amount");
       return;
     }
-
     if (pinConfirmation !== user.pin) {
       toast.error("PIN confirmation is incorrect");
       return;
     }
-
     try {
       await applyQuickLoan({
         userId: user._id as Id<"users">,
         amount: parseInt(quickLoanAmount),
       });
-
       toast.success("Quick loan application submitted successfully!");
       setShowQuickLoanForm(false);
       setQuickLoanAmount("");
@@ -150,7 +166,6 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
     }
   };
 
-  // Validation functions
   const validatePhoneNumber = (phone: string): boolean => {
     const phoneRegex = /^(\+234|0)[789][01]\d{8}$/;
     return phoneRegex.test(phone);
@@ -170,69 +185,43 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
 
   const handleCoreLoanSubmit = async () => {
     const requiredFields = [
-      "mobileNumber",
-      "amountRequested",
-      "accountNumber",
-      "accountName",
-      "bank",
-      "guarantor1Name",
-      "guarantor1Phone",
-      "guarantor2Name",
-      "guarantor2Phone",
+      "mobileNumber", "amountRequested", "accountNumber", "accountName",
+      "bank", "guarantor1Name", "guarantor1Phone", "guarantor2Name", "guarantor2Phone",
     ];
-
-    // Check if all required fields are filled
     for (const field of requiredFields) {
       if (!coreLoanForm[field as keyof typeof coreLoanForm]) {
-        toast.error(
-          `Please fill in ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`
-        );
+        toast.error(`Please fill in ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`);
         return;
       }
     }
-
-    // Validate mobile number
     if (!validatePhoneNumber(coreLoanForm.mobileNumber)) {
-      toast.error(
-        "Please enter a valid Nigerian mobile number (e.g., 08012345678 or +2348012345678)"
-      );
+      toast.error("Please enter a valid Nigerian mobile number (e.g., 08012345678 or +2348012345678)");
       return;
     }
-
-    // Validate amount
     if (!validateAmount(coreLoanForm.amountRequested)) {
       toast.error("Please enter a valid amount (numbers only)");
       return;
     }
-
-    // Validate account number
     if (!validateAccountNumber(coreLoanForm.accountNumber)) {
       toast.error("Please enter a valid 10-digit account number");
       return;
     }
-
-    // Validate guarantor names
     if (!validateName(coreLoanForm.guarantor1Name)) {
       toast.error("Guarantor 1 name must be at least 7 characters long");
       return;
     }
-
     if (!validateName(coreLoanForm.guarantor2Name)) {
       toast.error("Guarantor 2 name must be at least 7 characters long");
       return;
     }
-
-    // Validate guarantor phone numbers
     if (!validatePhoneNumber(coreLoanForm.guarantor1Phone)) {
       toast.error("Please enter a valid phone number for Guarantor 1");
       return;
     }
-
     if (!validatePhoneNumber(coreLoanForm.guarantor2Phone)) {
       toast.error("Please enter a valid phone number for Guarantor 2");
       return;
     }
-
     try {
       await applyCoreLoan({
         userId: user._id as Id<"users">,
@@ -248,19 +237,12 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
         guarantor2Name: coreLoanForm.guarantor2Name,
         guarantor2Phone: coreLoanForm.guarantor2Phone,
       });
-
       toast.success("Core loan application submitted successfully!");
       setShowCoreLoanForm(false);
       setCoreLoanForm({
-        mobileNumber: "",
-        amountRequested: "",
-        accountNumber: "",
-        accountName: "",
-        bank: "",
-        guarantor1Name: "",
-        guarantor1Phone: "",
-        guarantor2Name: "",
-        guarantor2Phone: "",
+        mobileNumber: "", amountRequested: "", accountNumber: "",
+        accountName: "", bank: "", guarantor1Name: "", guarantor1Phone: "",
+        guarantor2Name: "", guarantor2Phone: "",
       });
     } catch (error) {
       toast.error(
@@ -269,905 +251,894 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
       case "processing":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+        return {
+          color: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800/50",
+          dot: "bg-amber-500",
+          icon: <Clock className='h-3.5 w-3.5' />,
+          border: "border-l-amber-500",
+        };
       case "approved":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+        return {
+          color: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800/50",
+          dot: "bg-emerald-500",
+          icon: <CheckCircle className='h-3.5 w-3.5' />,
+          border: "border-l-emerald-500",
+        };
       case "rejected":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+        return {
+          color: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800/50",
+          dot: "bg-rose-500",
+          icon: <XCircle className='h-3.5 w-3.5' />,
+          border: "border-l-rose-500",
+        };
       case "cleared":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+        return {
+          color: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/30 dark:text-indigo-400 dark:border-indigo-800/50",
+          dot: "bg-indigo-500",
+          icon: <CheckCircle className='h-3.5 w-3.5' />,
+          border: "border-l-indigo-500",
+        };
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+        return {
+          color: "bg-muted text-muted-foreground border-border",
+          dot: "bg-muted-foreground",
+          icon: <AlertTriangle className='h-3.5 w-3.5' />,
+          border: "border-l-muted-foreground",
+        };
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "processing":
-        return <Clock className='h-4 w-4' />;
-      case "approved":
-        return <CheckCircle className='h-4 w-4' />;
-      case "rejected":
-        return <XCircle className='h-4 w-4' />;
-      case "cleared":
-        return <CheckCircle className='h-4 w-4' />;
-      default:
-        return <AlertTriangle className='h-4 w-4' />;
-    }
-  };
+  const isAdmin =
+    user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_1 ||
+    user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_2 ||
+    user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_3 ||
+    user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_4;
+
+  const userInitials = user.name
+    .split(" ")
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 '>
-      <div className='max-w-7xl mx-auto px-4 p-12'>
-        {/* User Info Card */}
+    <div className='min-h-[calc(100vh-57px)] bg-gradient-to-br from-slate-50 via-indigo-50/20 to-violet-50/20 dark:from-slate-950 dark:via-slate-950 dark:to-indigo-950/20'>
+      <div className='max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6'>
+
+        {/* ── Hero Welcome Banner ── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className='mb-8'>
-          <div className='mb-4 flex justify-end gap-3 items-center'>
-            <Button onClick={onLogout}>Logout</Button>
+          transition={{ type: "spring", damping: 22, stiffness: 200 }}>
+          <div className='relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 p-6 sm:p-8 text-white shadow-xl shadow-indigo-500/20'>
+            {/* Decorative circles */}
+            <div className='absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/8 pointer-events-none' />
+            <div className='absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-white/5 pointer-events-none' />
+            <div className='absolute top-4 right-24 w-20 h-20 rounded-full bg-white/5 pointer-events-none' />
 
-            {(user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_1 ||
-              user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_2 ||
-              user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_3 ||
-              user.pin === process.env.NEXT_PUBLIC_ADMIN_PIN_4) && (
-              <Button>
-                <Link href='/sign-in'>Admin Page</Link>
-              </Button>
-            )}
-          </div>
-
-          <Card className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm'>
-            <CardHeader>
-              <CardTitle className='flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center'>
-                {/* <User className='h-5 w-5' /> */}
-                <div className='flex flex-col gap-1 '>
-                  <span className='font-normal '>Welcome back! 👋</span>
-
-                  <span className='uppercase text-lg'>{user.name}</span>
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className='mt-0'>
-              <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4'>
+            <div className='relative flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+              {/* Left: Avatar + Name */}
+              <div className='flex items-center gap-4'>
+                <motion.div
+                  initial={{ scale: 0, rotate: -10 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", damping: 14, stiffness: 260, delay: 0.1 }}
+                  className='w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-xl font-bold shadow-lg shrink-0'>
+                  {userInitials}
+                </motion.div>
                 <div>
-                  <Label className='text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    Date Joined
-                  </Label>
-                  <p className='font-semibold'>
-                    {dayjs(user.dateJoined).format("MMM DD, YYYY")}
-                  </p>
-                </div>
-
-                <div className=''>
-                  <Label className='text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    Monthly Contribution
-                  </Label>
-                  <p className='font-semibold text-green-600 dark:text-green-400'>
-                    ₦{user.monthlyContribution?.toLocaleString() || "0"}
-                  </p>
-                </div>
-
-                <div className=''>
-                  <Label className='text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    Total Contributions
-                  </Label>
-                  <p className='font-semibold text-blue-600 dark:text-blue-400'>
-                    ₦{user.totalContribution?.toLocaleString() || "0"}
-                  </p>
-                  {user.lastContributionUpdate && (
-                    <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                      Last updated:{" "}
-                      {dayjs(user.lastContributionUpdate).format("MMM D, YYYY")}
-                    </p>
-                  )}
+                  <p className='text-white/70 text-sm font-medium'>Welcome back</p>
+                  <h1 className='text-lg sm:text-xl font-bold uppercase tracking-wide leading-tight'>
+                    {user.name}
+                  </h1>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Right: Actions */}
+              <div className='flex items-center gap-2 shrink-0'>
+                {isAdmin && (
+                  <Link href='/sign-in'>
+                    <Button
+                      size='sm'
+                      variant='ghost'
+                      className='text-white/90 hover:text-white hover:bg-white/15 border border-white/25 gap-1.5 text-xs'>
+                      <ExternalLink className='w-3.5 h-3.5' />
+                      Admin
+                    </Button>
+                  </Link>
+                )}
+                <Button
+                  size='sm'
+                  onClick={onLogout}
+                  className='bg-white/15 hover:bg-white/25 text-white border border-white/25 gap-1.5 text-xs backdrop-blur-sm'>
+                  <LogOut className='w-3.5 h-3.5' />
+                  Logout
+                </Button>
+              </div>
+            </div>
+
+            {/* Stats row */}
+            <div className='relative mt-6 grid grid-cols-3 gap-2 sm:gap-4 border-t border-white/20 pt-5'>
+              <div className='text-center sm:text-left'>
+                <div className='flex items-center justify-center sm:justify-start gap-1.5 text-white/60 text-xs mb-1'>
+                  <Calendar className='w-3 h-3' />
+                  <span>Date Joined</span>
+                </div>
+                <p className='font-semibold text-sm sm:text-base'>
+                  {dayjs(user.dateJoined).format("MMM YYYY")}
+                </p>
+              </div>
+              <div className='text-center sm:text-left'>
+                <div className='flex items-center justify-center sm:justify-start gap-1.5 text-white/60 text-xs mb-1'>
+                  <TrendingUp className='w-3 h-3' />
+                  <span>Monthly</span>
+                </div>
+                <p className='font-semibold text-sm sm:text-base'>
+                  ₦{user.monthlyContribution?.toLocaleString() || "0"}
+                </p>
+              </div>
+              <div className='text-center sm:text-left'>
+                <div className='flex items-center justify-center sm:justify-start gap-1.5 text-white/60 text-xs mb-1'>
+                  <Wallet className='w-3 h-3' />
+                  <span>Total Saved</span>
+                </div>
+                <p className='font-semibold text-sm sm:text-base'>
+                  ₦{user.totalContribution?.toLocaleString() || "0"}
+                </p>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
-        {/* Main Content */}
-        <Tabs defaultValue='overview' className='space-y-4 sm:space-y-6'>
-          <TabsList className='grid w-full grid-cols-3 gap-2 sm:gap-8'>
-            <TabsTrigger
-              value='overview'
-              className='border border-gray-200 dark:border-gray-700'>
-              Overview
-            </TabsTrigger>
-            <TabsTrigger
-              value='loans'
-              className='border border-gray-200 dark:border-gray-700'>
-              <span className='hidden sm:block'>Loan</span> Applications
-            </TabsTrigger>
-            <TabsTrigger
-              value='history'
-              className='border border-gray-200 dark:border-gray-700'>
-              <span className='hidden sm:block'>Activity</span> History
-            </TabsTrigger>
-          </TabsList>
+        {/* ── Tabs ── */}
+        <Tabs defaultValue='overview' className='space-y-5'>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}>
+            <TabsList className='w-full grid grid-cols-3 h-auto p-1 gap-1 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm border border-border/50 rounded-xl shadow-sm'>
+              {[
+                { value: "overview", label: "Overview", short: "Overview", icon: LayoutDashboard },
+                { value: "loans", label: "Applications", short: "Loans", icon: FileText },
+                { value: "history", label: "History", short: "History", icon: History },
+              ].map(({ value, label, short, icon: Icon }) => (
+                <TabsTrigger
+                  key={value}
+                  value={value}
+                  className='flex items-center justify-center gap-1.5 py-2.5 text-xs sm:text-sm font-medium rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 transition-all duration-200'>
+                  <Icon className='w-3.5 h-3.5' />
+                  <span className='hidden sm:inline'>{label}</span>
+                  <span className='sm:hidden'>{short}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </motion.div>
 
-          <TabsContent
-            value='overview'
-            className='grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 lg:gap-12'>
-            {/* Quick Loan Section */}
-            <Card className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm'>
-              <CardHeader>
-                <CardTitle className='flex items-center space-x-2'>
-                  <TrendingUp className='h-5 w-5 text-blue-600' />
-                  <span>Quick Loan</span>
-                </CardTitle>
-                <CardDescription>
-                  6 months duration • 5% interest rate • Fast processing
-                </CardDescription>
-              </CardHeader>
-              <CardContent className='space-y-4'>
-                {hasActiveQuickLoan ? (
-                  currentQuickLoan?.status === "processing" ? (
-                    <Alert>
-                      <Clock className='h-4 w-4' />
-                      <AlertDescription>
-                        You have an active quick loan application. Please wait
-                        for approval.
-                      </AlertDescription>
-                    </Alert>
-                  ) : currentQuickLoan?.status === "approved" ? (
-                    <div className='space-y-4'>
-                      {(() => {
-                        const isExpired = dayjs(
-                          currentQuickLoan.expiryDate
-                        ).isBefore(dayjs(), "day");
-                        return (
-                          <>
-                            <Alert
-                              className={
-                                isExpired
-                                  ? "border-red-200 bg-red-50 dark:bg-red-950/20"
-                                  : ""
-                              }>
-                              <CheckCircle
-                                className={`h-4 w-4 ${isExpired ? "text-red-600 dark:text-red-400" : ""}`}
-                              />
-                              <AlertDescription
-                                className={
-                                  isExpired
-                                    ? "text-red-800 dark:text-red-200"
-                                    : ""
-                                }>
-                                {isExpired
-                                  ? "Your quick loan has expired and requires immediate attention!"
-                                  : currentQuickLoan?.disbursed
-                                    ? "Your quick loan application has been approved and disbursed."
-                                    : "Your quick loan application has been approved, awaiting disbursement."}
-                              </AlertDescription>
-                            </Alert>
-                            <div
-                              className={`${
-                                isExpired
-                                  ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
-                                  : "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
-                              } border rounded-lg p-4 space-y-3`}>
-                              <div className='flex justify-between items-center'>
-                                <span
-                                  className={`font-medium ${
-                                    isExpired
-                                      ? "text-red-800 dark:text-red-200"
-                                      : "text-green-800 dark:text-green-200"
-                                  }`}>
-                                  Loan Amount:
-                                </span>
-                                <span
-                                  className={`font-bold ${
-                                    isExpired
-                                      ? "text-red-800 dark:text-red-200"
-                                      : "text-green-800 dark:text-green-200"
-                                  }`}>
-                                  ₦
-                                  {currentQuickLoan.amount?.toLocaleString() ||
-                                    "N/A"}
-                                </span>
-                              </div>
-                              <div className='flex justify-between items-center'>
-                                <span
-                                  className={`font-medium ${
-                                    isExpired
-                                      ? "text-red-800 dark:text-red-200"
-                                      : "text-green-800 dark:text-green-200"
-                                  }`}>
-                                  Total Repayment Amount:
-                                </span>
-                                <span
-                                  className={`font-bold ${
-                                    isExpired
-                                      ? "text-red-800 dark:text-red-200"
-                                      : "text-green-800 dark:text-green-200"
-                                  }`}>
-                                  ₦
-                                  {currentQuickLoan.totalRepayment?.toLocaleString() ||
-                                    "N/A"}
-                                </span>
-                              </div>
-                              <div
-                                className={`text-sm ${
-                                  isExpired
-                                    ? "text-red-700 dark:text-red-300"
-                                    : "text-green-700 dark:text-green-300"
-                                }`}>
-                                <p>
-                                  <strong>Interest Rate:</strong> 5%
-                                </p>
-                                <p className={isExpired ? "font-medium" : ""}>
-                                  <strong>Expiry Date:</strong>{" "}
-                                  {dayjs(currentQuickLoan.expiryDate).format(
-                                    "MMM DD, YYYY"
-                                  )}
-                                  {isExpired && " (EXPIRED)"}
-                                </p>
-                              </div>
-                              <div className='bg-white dark:bg-gray-800 rounded p-3 border'>
-                                <p className='font-medium text-sm mb-2'>
-                                  Bank Details for Repayment:
-                                </p>
-                                <p className='text-sm text-gray-600 dark:text-gray-400'>
-                                  <strong>Bank:</strong> Zenith Bank
-                                  <br />
-                                  <strong>Account Number:</strong> 1229203111
-                                  <br />
-                                  <strong>Account Name:</strong> NFVCB STAFF CO
-                                  SOC LTD
-                                  <br />
-                                  <strong>Narration:</strong> Quick Loan
-                                  Repayment - {user.name}
-                                </p>
-                              </div>
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  ) : (
-                    <Alert>
-                      <AlertTriangle className='h-4 w-4' />
-                      <AlertDescription>
-                        You have an active quick loan application. Please wait
-                        for approval or clear existing loan.
-                      </AlertDescription>
-                    </Alert>
-                  )
-                ) : (
-                  <Button
-                    onClick={() => setShowQuickLoanForm(true)}
-                    className='w-full'>
-                    Apply for Quick Loan
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+          {/* ── Overview Tab ── */}
+          <TabsContent value='overview' className='mt-0'>
+            <motion.div
+              variants={containerVariants}
+              initial='hidden'
+              animate='visible'
+              className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5'>
 
-            {/* Core Loan Section */}
-            <Card className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm'>
-              <CardHeader>
-                <CardTitle className='flex items-center space-x-2'>
-                  <Building2 className='h-5 w-5 text-purple-600' />
-                  <span>Core Loan</span>
-                </CardTitle>
-                <CardDescription>
-                  2 years duration • Comprehensive application process
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {(() => {
-                  const processingCoreLoan = userLoans?.coreLoans?.find(
-                    (loan) => loan.status === "processing"
-                  );
-                  const activeCoreLoan = userLoans?.coreLoans?.find(
-                    (loan) => loan.status === "approved"
-                  );
-
-                  if (processingCoreLoan) {
-                    return (
-                      <Alert>
-                        <Clock className='h-4 w-4' />
-                        <AlertDescription>
-                          Your core loan application has been received and is
-                          currently being processed. Please wait for approval
-                          notification.
-                        </AlertDescription>
-                      </Alert>
-                    );
-                  }
-
-                  if (activeCoreLoan) {
-                    return (
-                      <div className='space-y-3'>
-                        <Alert>
-                          <CheckCircle className='h-4 w-4 text-green-600' />
-                          <AlertDescription>
-                            You have an active core loan. You can apply for
-                            another loan.
-                          </AlertDescription>
-                        </Alert>
-                        <Button
-                          onClick={() => setShowCoreLoanForm(true)}
-                          // variant='outline'
-                          className='w-full'>
-                          Apply for Another Core Loan
-                        </Button>
+              {/* Quick Loan Card */}
+              <motion.div variants={itemVariants}>
+                <div className='h-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm overflow-hidden'>
+                  {/* Card accent top */}
+                  <div className='h-1 bg-gradient-to-r from-indigo-500 to-blue-500' />
+                  <div className='p-5 sm:p-6'>
+                    <div className='flex items-start gap-3 mb-4'>
+                      <div className='w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center shrink-0'>
+                        <TrendingUp className='w-5 h-5 text-indigo-600 dark:text-indigo-400' />
                       </div>
-                    );
-                  }
+                      <div>
+                        <h3 className='font-bold text-foreground'>Quick Loan</h3>
+                        <p className='text-xs text-muted-foreground mt-0.5'>
+                          6 months • 5% interest • Fast approval
+                        </p>
+                      </div>
+                    </div>
 
-                  return (
-                    <Button
-                      onClick={() => setShowCoreLoanForm(true)}
-                      // variant='outline'
-                      className='w-full'>
-                      Apply for Core Loan
-                    </Button>
-                  );
-                })()}
-              </CardContent>
-            </Card>
+                    {hasActiveQuickLoan ? (
+                      currentQuickLoan?.status === "processing" ? (
+                        <StatusBanner
+                          type='warning'
+                          icon={<Clock className='w-4 h-4' />}
+                          message='Your application is being reviewed. You will be notified upon approval.'
+                        />
+                      ) : currentQuickLoan?.status === "approved" ? (
+                        <ApprovedLoanCard loan={currentQuickLoan} userName={user.name} />
+                      ) : (
+                        <StatusBanner
+                          type='warning'
+                          icon={<AlertTriangle className='w-4 h-4' />}
+                          message='You have an active application. Please wait or clear your existing loan.'
+                        />
+                      )
+                    ) : (
+                      <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                        <Button
+                          onClick={() => setShowQuickLoanForm(true)}
+                          className='w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white border-0 shadow-md shadow-indigo-500/20 gap-2'>
+                          Apply for Quick Loan
+                          <ArrowRight className='w-4 h-4' />
+                        </Button>
+                      </motion.div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Core Loan Card */}
+              <motion.div variants={itemVariants}>
+                <div className='h-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm overflow-hidden'>
+                  <div className='h-1 bg-gradient-to-r from-violet-500 to-purple-500' />
+                  <div className='p-5 sm:p-6'>
+                    <div className='flex items-start gap-3 mb-4'>
+                      <div className='w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-950/40 border border-violet-100 dark:border-violet-900/50 flex items-center justify-center shrink-0'>
+                        <Building2 className='w-5 h-5 text-violet-600 dark:text-violet-400' />
+                      </div>
+                      <div>
+                        <h3 className='font-bold text-foreground'>Core Loan</h3>
+                        <p className='text-xs text-muted-foreground mt-0.5'>
+                          2 years duration • Comprehensive application
+                        </p>
+                      </div>
+                    </div>
+
+                    {(() => {
+                      const processingCoreLoan = userLoans?.coreLoans?.find(
+                        (loan) => loan.status === "processing"
+                      );
+                      const activeCoreLoan = userLoans?.coreLoans?.find(
+                        (loan) => loan.status === "approved"
+                      );
+
+                      if (processingCoreLoan) {
+                        return (
+                          <StatusBanner
+                            type='warning'
+                            icon={<Clock className='w-4 h-4' />}
+                            message='Your core loan application is being processed. Please wait for approval.'
+                          />
+                        );
+                      }
+                      if (activeCoreLoan) {
+                        return (
+                          <div className='space-y-3'>
+                            <StatusBanner
+                              type='success'
+                              icon={<CheckCircle className='w-4 h-4' />}
+                              message='You have an active core loan. You may apply for another.'
+                            />
+                            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                              <Button
+                                onClick={() => setShowCoreLoanForm(true)}
+                                className='w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white border-0 shadow-md shadow-violet-500/20 gap-2'>
+                                Apply for Another Loan
+                                <ArrowRight className='w-4 h-4' />
+                              </Button>
+                            </motion.div>
+                          </div>
+                        );
+                      }
+                      return (
+                        <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                          <Button
+                            onClick={() => setShowCoreLoanForm(true)}
+                            className='w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white border-0 shadow-md shadow-violet-500/20 gap-2'>
+                            Apply for Core Loan
+                            <ArrowRight className='w-4 h-4' />
+                          </Button>
+                        </motion.div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
           </TabsContent>
 
-          <TabsContent value='loans' className='space-y-4 sm:space-y-6'>
-            {/* Repayment Bank Details */}
-            <div className='flex flex-col lg:flex-row gap-4'>
-              <Alert className='flex-1'>
-                <CreditCard className='h-4 w-4' />
-                <AlertDescription>
-                  <strong>Quick Loan Repayment Details:</strong>
-                  <br />
-                  Account: 1229203111
-                  <br />
-                  Bank: Zenith Bank
-                  <br />
-                  Account Name: NFVCB STAFF CO SOC LTD
-                </AlertDescription>
-              </Alert>
-              <Alert className='flex-1'>
-                <CreditCard className='h-4 w-4' />
-                <AlertDescription>
-                  <strong>Core Loan Repayment Details:</strong>
-                  <br />
-                  Account: 1229203111
-                  <br />
-                  Bank: Zenith Bank
-                  <br />
-                  Account Name: NFVCB STAFF CO SOC LTD
-                </AlertDescription>
-              </Alert>
-            </div>
+          {/* ── Loans Tab ── */}
+          <TabsContent value='loans' className='mt-0'>
+            <motion.div
+              variants={containerVariants}
+              initial='hidden'
+              animate='visible'
+              className='space-y-5'>
 
-            {/* Active Loans */}
-            <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6'>
-              {/* Quick Loans */}
-              <Card className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm'>
-                <CardHeader>
-                  <CardTitle>Quick Loans</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {userLoans?.quickLoans?.length === 0 ? (
-                    <p className='text-gray-500 dark:text-gray-400'>
-                      You do not have an active quick loan.
-                    </p>
-                  ) : (
-                    <div className='space-y-4'>
-                      {quickLoansToShow?.map((loan) => (
-                        <div
-                          key={loan._id}
-                          className='border rounded-lg p-4 space-y-2'>
-                          <div className='flex flex-col sm:flex-row justify-between items-start gap-3'>
-                            <div className='min-w-0 flex-1'>
-                              <p className='font-semibold'>
-                                ₦{loan.amount.toLocaleString()}
-                              </p>
-                              <p className='text-xs sm:text-sm text-gray-500'>
-                                Applied:{" "}
-                                {dayjs(loan.dateApplied).format("MMM DD, YYYY")}
-                              </p>
-                              {loan.dateApproved && (
-                                <p className='text-xs sm:text-sm text-gray-500'>
-                                  Approved:{" "}
-                                  {dayjs(loan.dateApproved).format(
-                                    "MMM DD, YYYY"
-                                  )}
-                                </p>
-                              )}
-                              {loan.expiryDate && (
-                                <p className='text-xs sm:text-sm text-gray-500'>
-                                  Expires:{" "}
-                                  {dayjs(loan.expiryDate).format(
-                                    "MMM DD, YYYY"
-                                  )}
-                                </p>
-                              )}
-                              {loan.totalRepayment && (
-                                <p className='text-xs sm:text-sm text-green-600 font-medium'>
-                                  Total Repayment: ₦
-                                  {loan.totalRepayment.toLocaleString()}
-                                </p>
-                              )}
-                            </div>
-                            <Badge className={getStatusColor(loan.status)}>
-                              {getStatusIcon(loan.status)}
-                              <span className='ml-1 capitalize'>
-                                {loan.status}
-                              </span>
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-
-                      {/* Quick Loans Pagination */}
-                      {totalQuickLoanPages > 1 && (
-                        <div className='flex justify-center items-center gap-2 mt-4 pt-4 border-t'>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            onClick={() =>
-                              setQuickLoanPage((prev) => Math.max(1, prev - 1))
-                            }
-                            disabled={quickLoanPage === 1}>
-                            Previous
-                          </Button>
-                          <span className='text-sm text-gray-600 dark:text-gray-400'>
-                            Page {quickLoanPage} of {totalQuickLoanPages}
-                          </span>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            onClick={() =>
-                              setQuickLoanPage((prev) =>
-                                Math.min(totalQuickLoanPages, prev + 1)
-                              )
-                            }
-                            disabled={quickLoanPage === totalQuickLoanPages}>
-                            Next
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Core Loans */}
-              <Card className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm'>
-                <CardHeader>
-                  <CardTitle>Core Loans</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {userLoans?.coreLoans?.length === 0 ? (
-                    <p className='text-gray-500 dark:text-gray-400'>
-                      No core loans found
-                    </p>
-                  ) : (
-                    <div className='space-y-4'>
-                      {coreLoansToShow?.map((loan) => (
-                        <div
-                          key={loan._id}
-                          className='border rounded-lg p-4 space-y-2'>
-                          <div className='flex flex-col sm:flex-row justify-between items-start gap-3'>
-                            <div className='min-w-0 flex-1'>
-                              <p className='font-semibold'>
-                                ₦{loan.amountRequested.toLocaleString()}
-                              </p>
-                              <p className='text-xs sm:text-sm text-gray-500'>
-                                Applied:{" "}
-                                {dayjs(loan.dateApplied).format("MMM DD, YYYY")}
-                              </p>
-                              {loan.dateApproved && (
-                                <p className='text-xs sm:text-sm text-gray-500'>
-                                  Approved:{" "}
-                                  {dayjs(loan.dateApproved).format(
-                                    "MMM DD, YYYY"
-                                  )}
-                                </p>
-                              )}
-                              {loan.expiryDate && (
-                                <p className='text-xs sm:text-sm text-gray-500'>
-                                  Expires:{" "}
-                                  {dayjs(loan.expiryDate).format(
-                                    "MMM DD, YYYY"
-                                  )}
-                                </p>
-                              )}
-                            </div>
-                            <Badge className={getStatusColor(loan.status)}>
-                              {getStatusIcon(loan.status)}
-                              <span className='ml-1 capitalize'>
-                                {loan.status}
-                              </span>
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-
-                      {/* Core Loans Pagination */}
-                      {totalCoreLoanPages > 1 && (
-                        <div className='flex justify-center items-center gap-2 mt-4 pt-4 border-t'>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            onClick={() =>
-                              setCoreLoanPage((prev) => Math.max(1, prev - 1))
-                            }
-                            disabled={coreLoanPage === 1}>
-                            Previous
-                          </Button>
-                          <span className='text-sm text-gray-600 dark:text-gray-400'>
-                            Page {coreLoanPage} of {totalCoreLoanPages}
-                          </span>
-                          <Button
-                            variant='outline'
-                            size='sm'
-                            onClick={() =>
-                              setCoreLoanPage((prev) =>
-                                Math.min(totalCoreLoanPages, prev + 1)
-                              )
-                            }
-                            disabled={coreLoanPage === totalCoreLoanPages}>
-                            Next
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value='history' className='space-y-4 sm:space-y-6'>
-            <Card className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm'>
-              <CardHeader>
-                <CardTitle>Activity History</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {activityHistory?.length === 0 ? (
-                  <p className='text-gray-500 dark:text-gray-400'>
-                    No activity history found
-                  </p>
-                ) : (
-                  <div className='space-y-4'>
-                    {activityHistory?.map((activity) => (
+              {/* Repayment Info */}
+              <motion.div variants={itemVariants}>
+                <div className='bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm p-5'>
+                  <div className='flex items-center gap-2 mb-3'>
+                    <CreditCard className='w-4 h-4 text-indigo-600 dark:text-indigo-400' />
+                    <h3 className='font-semibold text-sm'>Repayment Bank Details</h3>
+                  </div>
+                  <div className='grid sm:grid-cols-2 gap-3'>
+                    {["Quick Loan", "Core Loan"].map((type) => (
                       <div
-                        key={activity._id}
-                        className='flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 p-4 border rounded-lg'>
-                        <div className='flex items-center space-x-3 w-full sm:w-auto'>
-                          <div className='flex-shrink-0'>
-                            <Badge className={getStatusColor(activity.status)}>
-                              {getStatusIcon(activity.status)}
-                            </Badge>
-                          </div>
-                          <div className='flex-1 min-w-0'>
-                            <p className='font-medium truncate'>
-                              {activity.action}
-                            </p>
-                            <p className='text-xs sm:text-sm text-gray-500'>
-                              {dayjs(activity.date).format(
-                                "MMM DD, YYYY HH:mm"
-                              )}
-                            </p>
-                            {activity.loanAmount ? (
-                              <p className='text-xs sm:text-sm font-medium text-green-600 dark:text-green-400'>
-                                ₦{activity.loanAmount.toLocaleString()}
-                              </p>
-                            ) : (
-                              <p className='text-xs sm:text-sm text-gray-400'>
-                                Amount not available
-                              </p>
-                            )}
-                          </div>
+                        key={type}
+                        className='bg-muted/50 dark:bg-slate-800/50 rounded-xl p-3.5 border border-border/40'>
+                        <p className='text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-2'>
+                          {type} Repayment
+                        </p>
+                        <div className='space-y-0.5 text-xs text-muted-foreground'>
+                          <p><span className='font-medium text-foreground'>Bank:</span> Zenith Bank</p>
+                          <p><span className='font-medium text-foreground'>Account:</span> 1229203111</p>
+                          <p><span className='font-medium text-foreground'>Name:</span> NFVCB STAFF CO SOC LTD</p>
                         </div>
-                        <Badge
-                          variant='outline'
-                          className='capitalize shrink-0'>
-                          {activity.loanType} Loan
-                        </Badge>
                       </div>
                     ))}
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </div>
+              </motion.div>
+
+              {/* Loan Lists */}
+              <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5'>
+                {/* Quick Loans */}
+                <motion.div variants={itemVariants}>
+                  <div className='bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm overflow-hidden'>
+                    <div className='h-1 bg-gradient-to-r from-indigo-500 to-blue-500' />
+                    <div className='p-5'>
+                      <div className='flex items-center gap-2 mb-4'>
+                        <TrendingUp className='w-4 h-4 text-indigo-600 dark:text-indigo-400' />
+                        <h3 className='font-semibold'>Quick Loans</h3>
+                        {userLoans?.quickLoans?.length ? (
+                          <span className='ml-auto text-xs text-muted-foreground bg-muted rounded-full px-2 py-0.5'>
+                            {userLoans.quickLoans.length}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      {!userLoans?.quickLoans?.length ? (
+                        <EmptyState message='No quick loans yet' />
+                      ) : (
+                        <div className='space-y-2.5'>
+                          {quickLoansToShow?.map((loan, i) => {
+                            const cfg = getStatusConfig(loan.status);
+                            return (
+                              <motion.div
+                                key={loan._id}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: i * 0.05 }}
+                                className={`border-l-4 ${cfg.border} bg-muted/30 dark:bg-slate-800/40 rounded-r-xl p-3.5 space-y-1`}>
+                                <div className='flex items-center justify-between gap-2'>
+                                  <p className='font-bold text-sm'>₦{loan.amount.toLocaleString()}</p>
+                                  <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${cfg.color}`}>
+                                    {cfg.icon}
+                                    <span className='capitalize'>{loan.status}</span>
+                                  </span>
+                                </div>
+                                <div className='grid grid-cols-2 gap-x-3 text-[11px] text-muted-foreground'>
+                                  <span>Applied: {dayjs(loan.dateApplied).format("MMM D, YYYY")}</span>
+                                  {loan.dateApproved && <span>Approved: {dayjs(loan.dateApproved).format("MMM D, YYYY")}</span>}
+                                  {loan.expiryDate && <span>Expires: {dayjs(loan.expiryDate).format("MMM D, YYYY")}</span>}
+                                  {loan.totalRepayment && (
+                                    <span className='text-emerald-600 dark:text-emerald-400 font-medium'>
+                                      Repay: ₦{loan.totalRepayment.toLocaleString()}
+                                    </span>
+                                  )}
+                                </div>
+                              </motion.div>
+                            );
+                          })}
+                          <PaginationControls
+                            page={quickLoanPage}
+                            total={totalQuickLoanPages}
+                            onPrev={() => setQuickLoanPage((p) => Math.max(1, p - 1))}
+                            onNext={() => setQuickLoanPage((p) => Math.min(totalQuickLoanPages, p + 1))}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Core Loans */}
+                <motion.div variants={itemVariants}>
+                  <div className='bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm overflow-hidden'>
+                    <div className='h-1 bg-gradient-to-r from-violet-500 to-purple-500' />
+                    <div className='p-5'>
+                      <div className='flex items-center gap-2 mb-4'>
+                        <Building2 className='w-4 h-4 text-violet-600 dark:text-violet-400' />
+                        <h3 className='font-semibold'>Core Loans</h3>
+                        {userLoans?.coreLoans?.length ? (
+                          <span className='ml-auto text-xs text-muted-foreground bg-muted rounded-full px-2 py-0.5'>
+                            {userLoans.coreLoans.length}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      {!userLoans?.coreLoans?.length ? (
+                        <EmptyState message='No core loans yet' />
+                      ) : (
+                        <div className='space-y-2.5'>
+                          {coreLoansToShow?.map((loan, i) => {
+                            const cfg = getStatusConfig(loan.status);
+                            return (
+                              <motion.div
+                                key={loan._id}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: i * 0.05 }}
+                                className={`border-l-4 ${cfg.border} bg-muted/30 dark:bg-slate-800/40 rounded-r-xl p-3.5 space-y-1`}>
+                                <div className='flex items-center justify-between gap-2'>
+                                  <p className='font-bold text-sm'>₦{loan.amountRequested.toLocaleString()}</p>
+                                  <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${cfg.color}`}>
+                                    {cfg.icon}
+                                    <span className='capitalize'>{loan.status}</span>
+                                  </span>
+                                </div>
+                                <div className='grid grid-cols-2 gap-x-3 text-[11px] text-muted-foreground'>
+                                  <span>Applied: {dayjs(loan.dateApplied).format("MMM D, YYYY")}</span>
+                                  {loan.dateApproved && <span>Approved: {dayjs(loan.dateApproved).format("MMM D, YYYY")}</span>}
+                                  {loan.expiryDate && <span>Expires: {dayjs(loan.expiryDate).format("MMM D, YYYY")}</span>}
+                                </div>
+                              </motion.div>
+                            );
+                          })}
+                          <PaginationControls
+                            page={coreLoanPage}
+                            total={totalCoreLoanPages}
+                            onPrev={() => setCoreLoanPage((p) => Math.max(1, p - 1))}
+                            onNext={() => setCoreLoanPage((p) => Math.min(totalCoreLoanPages, p + 1))}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
+          </TabsContent>
+
+          {/* ── History Tab ── */}
+          <TabsContent value='history' className='mt-0'>
+            <motion.div
+              variants={containerVariants}
+              initial='hidden'
+              animate='visible'>
+              <motion.div variants={itemVariants}>
+                <div className='bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm p-5 sm:p-6'>
+                  <div className='flex items-center gap-2 mb-5'>
+                    <History className='w-4 h-4 text-indigo-600 dark:text-indigo-400' />
+                    <h3 className='font-semibold'>Activity History</h3>
+                    {activityHistory?.length ? (
+                      <span className='ml-auto text-xs text-muted-foreground bg-muted rounded-full px-2 py-0.5'>
+                        {activityHistory.length} events
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {!activityHistory?.length ? (
+                    <EmptyState message='No activity history yet' />
+                  ) : (
+                    <div className='space-y-0'>
+                      {activityHistory.map((activity, i) => {
+                        const cfg = getStatusConfig(activity.status);
+                        const isLast = i === activityHistory.length - 1;
+                        return (
+                          <motion.div
+                            key={activity._id}
+                            initial={{ opacity: 0, x: -8 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.04 }}
+                            className='flex gap-3 sm:gap-4'>
+                            {/* Timeline connector */}
+                            <div className='flex flex-col items-center'>
+                              <div className={`w-8 h-8 rounded-full border-2 border-background flex items-center justify-center shrink-0 ${cfg.color.split(' ').slice(0, 2).join(' ')}`}>
+                                {cfg.icon}
+                              </div>
+                              {!isLast && (
+                                <div className='w-px flex-1 bg-border/60 my-1' />
+                              )}
+                            </div>
+
+                            {/* Content */}
+                            <div className={`flex-1 ${isLast ? "pb-0" : "pb-4"}`}>
+                              <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-1'>
+                                <p className='font-medium text-sm'>{activity.action}</p>
+                                <Badge variant='outline' className='text-[10px] capitalize w-fit'>
+                                  {activity.loanType} Loan
+                                </Badge>
+                              </div>
+                              <div className='flex items-center gap-3 mt-0.5'>
+                                <p className='text-xs text-muted-foreground'>
+                                  {dayjs(activity.date).format("MMM D, YYYY · HH:mm")}
+                                </p>
+                                {activity.loanAmount ? (
+                                  <p className='text-xs font-semibold text-emerald-600 dark:text-emerald-400'>
+                                    ₦{activity.loanAmount.toLocaleString()}
+                                  </p>
+                                ) : null}
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </motion.div>
           </TabsContent>
         </Tabs>
+      </div>
 
-        {/* Quick Loan Application Modal */}
-        {showQuickLoanForm && (
-          <div className='fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50'>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className='bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto mx-4'>
-              <div className='flex justify-between items-center mb-4'>
-                <h2 className='text-xl font-bold'>Quick Loan Application</h2>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => setShowQuickLoanForm(false)}>
-                  ✕
-                </Button>
+      {/* ── Quick Loan Sheet ── */}
+      <Sheet open={showQuickLoanForm} onOpenChange={setShowQuickLoanForm}>
+        <SheetContent side='right' showCloseButton={false} className='w-full sm:max-w-md overflow-y-auto p-0'>
+          <SheetHeader className='border-b border-border/40 pb-4'>
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-2.5'>
+                <div className='w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/40 flex items-center justify-center'>
+                  <TrendingUp className='w-4 h-4 text-indigo-600 dark:text-indigo-400' />
+                </div>
+                <SheetTitle className='text-lg font-bold'>Quick Loan Application</SheetTitle>
               </div>
+              <CloseButton onClick={() => setShowQuickLoanForm(false)} />
+            </div>
+          </SheetHeader>
 
-              <div className='space-y-4'>
-                <Alert>
-                  <FileText className='h-4 w-4' />
-                  <AlertDescription>
-                    <strong>Terms & Conditions:</strong>
-                    <br />
-                    • 5% interest rate on the principal amount
-                    <br />
-                    • Repayment period: 6 months
-                    <br />• Defaulting will result in blacklisting from future
-                    loans
-                  </AlertDescription>
-                </Alert>
-
-                <div className='space-y-2'>
-                  <Label>Select Loan Amount</Label>
-                  <Select
-                    value={quickLoanAmount}
-                    onValueChange={setQuickLoanAmount}>
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder='Choose amount' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {quickLoanAmounts.map((amount) => (
-                        <SelectItem key={amount.value} value={amount.value}>
-                          {amount.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className='space-y-2'>
-                  <Label>Confirm PIN</Label>
-                  <Input
-                    type='password'
-                    placeholder='Enter your 6-digit PIN'
-                    value={pinConfirmation}
-                    onChange={(e) => setPinConfirmation(e.target.value)}
-                    maxLength={6}
-                  />
-                </div>
-
-                <div className='flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2'>
-                  <Button
-                    onClick={handleQuickLoanSubmit}
-                    className='flex-1'
-                    disabled={!quickLoanAmount || pinConfirmation.length !== 6}>
-                    Submit Application
-                  </Button>
-                  <Button
-                    variant='outline'
-                    onClick={() => setShowQuickLoanForm(false)}
-                    className='flex-1'>
-                    Cancel
-                  </Button>
+          <div className='p-6 space-y-4'>
+            {/* Terms */}
+            <div className='bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 rounded-xl p-4'>
+              <div className='flex items-start gap-2'>
+                <FileText className='w-4 h-4 text-indigo-600 dark:text-indigo-400 mt-0.5 shrink-0' />
+                <div className='text-xs text-indigo-900 dark:text-indigo-200 space-y-1'>
+                  <p className='font-semibold text-sm mb-1.5'>Terms & Conditions</p>
+                  <p>• 5% interest rate on the principal amount</p>
+                  <p>• Repayment period: 6 months from disbursement</p>
+                  <p>• Defaulting will result in blacklisting from future loans</p>
                 </div>
               </div>
-            </motion.div>
-          </div>
-        )}
+            </div>
 
-        {/* Core Loan Application Modal */}
-        {showCoreLoanForm && (
-          <div className='fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50'>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className='bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4'>
-              <div className='flex justify-between items-center mb-4'>
-                <h2 className='text-xl font-bold'>Core Loan Application</h2>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => setShowCoreLoanForm(false)}>
-                  ✕
-                </Button>
-              </div>
+            <FormField label='Select Loan Amount'>
+              <Select value={quickLoanAmount} onValueChange={setQuickLoanAmount}>
+                <SelectTrigger className='rounded-xl border-border/60 focus:ring-indigo-500/20 focus:border-indigo-400'>
+                  <SelectValue placeholder='Choose amount' />
+                </SelectTrigger>
+                <SelectContent>
+                  {quickLoanAmounts.map((amount) => (
+                    <SelectItem key={amount.value} value={amount.value}>
+                      {amount.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
 
-              <div className='space-y-4'>
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  <div className='space-y-2'>
-                    <Label>Name</Label>
-                    <Input value={user.name} disabled />
-                  </div>
-                  <div className='space-y-2'>
-                    <Label>IPPIS</Label>
-                    <Input value={user.ippis} disabled />
-                  </div>
-                  <div className='space-y-2'>
-                    <Label>Loan Date</Label>
-                    <Input value={dayjs().format("YYYY-MM-DD")} disabled />
-                  </div>
-                  <div className='space-y-2'>
-                    <Label>Mobile Number *</Label>
-                    <Input
-                      type='tel'
-                      placeholder='Enter mobile number (e.g., 08012345678)'
-                      value={coreLoanForm.mobileNumber}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/[^0-9+]/g, "");
-                        setCoreLoanForm({
-                          ...coreLoanForm,
-                          mobileNumber: value,
-                        });
-                      }}
-                      minLength={11}
-                      maxLength={14}
-                      pattern='^(\+234|0)[789][01]\d{8}$'
-                      required
-                    />
-                  </div>
-                  <div className='space-y-2'>
-                    <Label>Amount Requested *</Label>
-                    <Input
-                      type='number'
-                      placeholder='Enter amount'
-                      value={coreLoanForm.amountRequested}
-                      onChange={(e) =>
-                        setCoreLoanForm({
-                          ...coreLoanForm,
-                          amountRequested: e.target.value,
-                        })
-                      }
-                      min='1'
-                      step='1'
-                      required
-                    />
-                  </div>
-                  <div className='space-y-2'>
-                    <Label>Account Number *</Label>
-                    <Input
-                      placeholder='Enter 10-digit account number'
-                      value={coreLoanForm.accountNumber}
-                      onChange={(e) =>
-                        setCoreLoanForm({
-                          ...coreLoanForm,
-                          accountNumber: e.target.value,
-                        })
-                      }
-                      minLength={10}
-                      maxLength={10}
-                      pattern='^\d{10}$'
-                      required
-                    />
-                  </div>
-                  <div className='space-y-2'>
-                    <Label>Account Name *</Label>
-                    <Input
-                      placeholder='Enter account name'
-                      value={coreLoanForm.accountName}
-                      onChange={(e) =>
-                        setCoreLoanForm({
-                          ...coreLoanForm,
-                          accountName: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                  </div>
-                  <div className='space-y-2'>
-                    <Label>Bank *</Label>
-                    <Input
-                      placeholder='Enter bank name'
-                      value={coreLoanForm.bank}
-                      onChange={(e) =>
-                        setCoreLoanForm({
-                          ...coreLoanForm,
-                          bank: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                  </div>
-                  <div className='space-y-2'>
-                    <Label>Existing Loan</Label>
-                    <Input value={hasActiveCoreLoan ? "Yes" : "No"} disabled />
-                  </div>
-                </div>
-
-                <Separator />
-
+            {quickLoanAmount && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className='bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/50 rounded-xl p-3 text-xs text-emerald-800 dark:text-emerald-300 grid grid-cols-2 gap-2'>
                 <div>
-                  <h3 className='font-semibold mb-4'>Guarantors</h3>
-                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
-                    <div className='space-y-2'>
-                      <Label>Guarantor 1 Name *</Label>
-                      <Input
-                        placeholder='Enter guarantor 1 name (min 7 characters)'
-                        value={coreLoanForm.guarantor1Name}
-                        onChange={(e) =>
-                          setCoreLoanForm({
-                            ...coreLoanForm,
-                            guarantor1Name: e.target.value,
-                          })
-                        }
-                        minLength={7}
-                        required
-                      />
-                    </div>
-                    <div className='space-y-2'>
-                      <Label>Guarantor 1 Phone *</Label>
-                      <Input
-                        type='tel'
-                        placeholder='Enter guarantor 1 phone (e.g., 08012345678)'
-                        value={coreLoanForm.guarantor1Phone}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9+]/g, "");
-                          setCoreLoanForm({
-                            ...coreLoanForm,
-                            guarantor1Phone: value,
-                          });
-                        }}
-                        minLength={11}
-                        maxLength={14}
-                        pattern='^(\+234|0)[789][01]\d{8}$'
-                        required
-                      />
-                    </div>
-                    <div className='space-y-2'>
-                      <Label>Guarantor 2 Name *</Label>
-                      <Input
-                        placeholder='Enter guarantor 2 name (min 7 characters)'
-                        value={coreLoanForm.guarantor2Name}
-                        onChange={(e) =>
-                          setCoreLoanForm({
-                            ...coreLoanForm,
-                            guarantor2Name: e.target.value,
-                          })
-                        }
-                        minLength={7}
-                        required
-                      />
-                    </div>
-                    <div className='space-y-2'>
-                      <Label>Guarantor 2 Phone *</Label>
-                      <Input
-                        type='tel'
-                        placeholder='Enter guarantor 2 phone (e.g., 08012345678)'
-                        value={coreLoanForm.guarantor2Phone}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9+]/g, "");
-                          setCoreLoanForm({
-                            ...coreLoanForm,
-                            guarantor2Phone: value,
-                          });
-                        }}
-                        minLength={11}
-                        maxLength={14}
-                        pattern='^(\+234|0)[789][01]\d{8}$'
-                        required
-                      />
-                    </div>
-                  </div>
+                  <span className='text-muted-foreground'>Principal:</span>{" "}
+                  <strong>₦{parseInt(quickLoanAmount).toLocaleString()}</strong>
                 </div>
+                <div>
+                  <span className='text-muted-foreground'>Interest (5%):</span>{" "}
+                  <strong>₦{(parseInt(quickLoanAmount) * 0.05).toLocaleString()}</strong>
+                </div>
+                <div className='col-span-2'>
+                  <span className='text-muted-foreground'>Total repayment:</span>{" "}
+                  <strong className='text-base'>₦{(parseInt(quickLoanAmount) * 1.05).toLocaleString()}</strong>
+                </div>
+              </motion.div>
+            )}
 
-                <div className='flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2'>
-                  <Button onClick={handleCoreLoanSubmit} className='flex-1'>
-                    Submit Application
-                  </Button>
-                  <Button
-                    variant='outline'
-                    onClick={() => setShowCoreLoanForm(false)}
-                    className='flex-1'>
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
+            <FormField label='Confirm PIN'>
+              <Input
+                type='password'
+                placeholder='Enter your 6-digit PIN'
+                value={pinConfirmation}
+                onChange={(e) => setPinConfirmation(e.target.value)}
+                maxLength={6}
+                className='rounded-xl border-border/60 focus-visible:ring-indigo-500/20 focus-visible:border-indigo-400'
+              />
+            </FormField>
+
+            <div className='flex gap-2.5 pt-1'>
+              <Button
+                variant='outline'
+                onClick={() => setShowQuickLoanForm(false)}
+                className='flex-1 rounded-xl border-border/60'>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleQuickLoanSubmit}
+                disabled={!quickLoanAmount || pinConfirmation.length !== 6}
+                className='flex-1 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white border-0 shadow-md shadow-indigo-500/20'>
+                Submit Application
+              </Button>
+            </div>
           </div>
-        )}
+        </SheetContent>
+      </Sheet>
+
+      {/* ── Core Loan Sheet ── */}
+      <Sheet open={showCoreLoanForm} onOpenChange={setShowCoreLoanForm}>
+        <SheetContent side='right' showCloseButton={false} className='w-full sm:max-w-2xl overflow-y-auto p-0'>
+          <SheetHeader className='border-b border-border/40 pb-4'>
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-2.5'>
+                <div className='w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-950/40 flex items-center justify-center'>
+                  <Building2 className='w-4 h-4 text-violet-600 dark:text-violet-400' />
+                </div>
+                <SheetTitle className='text-lg font-bold'>Core Loan Application</SheetTitle>
+              </div>
+              <CloseButton onClick={() => setShowCoreLoanForm(false)} />
+            </div>
+          </SheetHeader>
+
+          <div className='p-6 space-y-5'>
+            {/* Auto-filled info */}
+            <div>
+              <p className='text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3'>
+                Your Information
+              </p>
+              <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
+                <FormField label='Full Name'>
+                  <Input value={user.name} disabled className='rounded-xl bg-muted/50 border-border/40' />
+                </FormField>
+                <FormField label='IPPIS'>
+                  <Input value={user.ippis} disabled className='rounded-xl bg-muted/50 border-border/40' />
+                </FormField>
+                <FormField label='Loan Date'>
+                  <Input value={dayjs().format("YYYY-MM-DD")} disabled className='rounded-xl bg-muted/50 border-border/40' />
+                </FormField>
+              </div>
+            </div>
+
+            <Separator className='opacity-50' />
+
+            {/* Loan details */}
+            <div>
+              <p className='text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3'>
+                Loan Details
+              </p>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                <FormField label='Mobile Number *'>
+                  <Input
+                    type='tel'
+                    placeholder='e.g., 08012345678'
+                    value={coreLoanForm.mobileNumber}
+                    onChange={(e) => setCoreLoanForm({ ...coreLoanForm, mobileNumber: e.target.value.replace(/[^0-9+]/g, "") })}
+                    minLength={11} maxLength={14}
+                    className='rounded-xl border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400'
+                  />
+                </FormField>
+                <FormField label='Amount Requested *'>
+                  <Input
+                    type='number'
+                    placeholder='Enter amount in Naira'
+                    value={coreLoanForm.amountRequested}
+                    onChange={(e) => setCoreLoanForm({ ...coreLoanForm, amountRequested: e.target.value })}
+                    min='1'
+                    className='rounded-xl border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400'
+                  />
+                </FormField>
+                <FormField label='Account Number *'>
+                  <Input
+                    placeholder='10-digit account number'
+                    value={coreLoanForm.accountNumber}
+                    onChange={(e) => setCoreLoanForm({ ...coreLoanForm, accountNumber: e.target.value })}
+                    minLength={10} maxLength={10}
+                    className='rounded-xl border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400'
+                  />
+                </FormField>
+                <FormField label='Account Name *'>
+                  <Input
+                    placeholder='Account holder name'
+                    value={coreLoanForm.accountName}
+                    onChange={(e) => setCoreLoanForm({ ...coreLoanForm, accountName: e.target.value })}
+                    className='rounded-xl border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400'
+                  />
+                </FormField>
+                <FormField label='Bank *'>
+                  <Input
+                    placeholder='Bank name'
+                    value={coreLoanForm.bank}
+                    onChange={(e) => setCoreLoanForm({ ...coreLoanForm, bank: e.target.value })}
+                    className='rounded-xl border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400'
+                  />
+                </FormField>
+                <FormField label='Existing Loan'>
+                  <Input value={hasActiveCoreLoan ? "Yes" : "No"} disabled className='rounded-xl bg-muted/50 border-border/40' />
+                </FormField>
+              </div>
+            </div>
+
+            <Separator className='opacity-50' />
+
+            {/* Guarantors */}
+            <div>
+              <p className='text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3'>
+                Guarantors (2 required)
+              </p>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                {[1, 2].map((n) => (
+                  <div key={n} className='bg-muted/30 dark:bg-slate-800/40 rounded-xl p-3.5 space-y-3'>
+                    <p className='text-xs font-semibold text-muted-foreground'>Guarantor {n}</p>
+                    <FormField label='Full Name *'>
+                      <Input
+                        placeholder='Min. 7 characters'
+                        value={coreLoanForm[`guarantor${n}Name` as keyof typeof coreLoanForm]}
+                        onChange={(e) => setCoreLoanForm({ ...coreLoanForm, [`guarantor${n}Name`]: e.target.value })}
+                        minLength={7}
+                        className='rounded-lg border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400 bg-background'
+                      />
+                    </FormField>
+                    <FormField label='Phone Number *'>
+                      <Input
+                        type='tel'
+                        placeholder='e.g., 08012345678'
+                        value={coreLoanForm[`guarantor${n}Phone` as keyof typeof coreLoanForm]}
+                        onChange={(e) => setCoreLoanForm({ ...coreLoanForm, [`guarantor${n}Phone`]: e.target.value.replace(/[^0-9+]/g, "") })}
+                        minLength={11} maxLength={14}
+                        className='rounded-lg border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400 bg-background'
+                      />
+                    </FormField>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className='flex gap-2.5 pt-1'>
+              <Button
+                variant='outline'
+                onClick={() => setShowCoreLoanForm(false)}
+                className='flex-1 rounded-xl border-border/60'>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCoreLoanSubmit}
+                className='flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white border-0 shadow-md shadow-violet-500/20'>
+                Submit Application
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}
+
+// ─── Sub-components ────────────────────────────────────────────────
+
+function StatusBanner({
+  type,
+  icon,
+  message,
+}: {
+  type: "warning" | "success" | "info";
+  icon: React.ReactNode;
+  message: string;
+}) {
+  const styles = {
+    warning: "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/40 text-amber-800 dark:text-amber-300",
+    success: "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300",
+    info: "bg-indigo-50 dark:bg-indigo-950/20 border-indigo-200 dark:border-indigo-800/40 text-indigo-800 dark:text-indigo-300",
+  };
+  return (
+    <div className={`flex items-start gap-2.5 p-3.5 rounded-xl border text-sm ${styles[type]}`}>
+      <span className='shrink-0 mt-0.5'>{icon}</span>
+      <p>{message}</p>
+    </div>
+  );
+}
+
+function ApprovedLoanCard({ loan, userName }: { loan: { amount: number; totalRepayment?: number; expiryDate?: string; disbursed?: boolean }; userName: string }) {
+  const isExpired = dayjs(loan.expiryDate).isBefore(dayjs(), "day");
+  return (
+    <div className='space-y-3'>
+      <StatusBanner
+        type={isExpired ? "warning" : "success"}
+        icon={isExpired ? <AlertTriangle className='w-4 h-4' /> : <CheckCircle className='w-4 h-4' />}
+        message={
+          isExpired
+            ? "Your quick loan has expired and requires immediate attention!"
+            : loan.disbursed
+              ? "Your loan has been approved and disbursed."
+              : "Your loan is approved and awaiting disbursement."
+        }
+      />
+      <div className={`rounded-xl p-3.5 border ${isExpired ? "bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-800/40" : "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40"}`}>
+        <div className='grid grid-cols-2 gap-2 text-xs mb-3'>
+          <div>
+            <p className='text-muted-foreground mb-0.5'>Loan Amount</p>
+            <p className='font-bold text-sm'>₦{loan.amount?.toLocaleString()}</p>
+          </div>
+          <div>
+            <p className='text-muted-foreground mb-0.5'>Total Repayment</p>
+            <p className='font-bold text-sm'>₦{loan.totalRepayment?.toLocaleString()}</p>
+          </div>
+          <div>
+            <p className='text-muted-foreground mb-0.5'>Interest Rate</p>
+            <p className='font-semibold'>5%</p>
+          </div>
+          <div>
+            <p className='text-muted-foreground mb-0.5'>Expiry Date</p>
+            <p className={`font-semibold ${isExpired ? "text-rose-600 dark:text-rose-400" : ""}`}>
+              {dayjs(loan.expiryDate).format("MMM D, YYYY")}
+              {isExpired && " (EXPIRED)"}
+            </p>
+          </div>
+        </div>
+        <div className='bg-background rounded-lg p-2.5 border border-border/50 text-xs'>
+          <p className='font-semibold mb-1'>Repayment Details:</p>
+          <p className='text-muted-foreground'>
+            Bank: <span className='text-foreground font-medium'>Zenith Bank</span> ·{" "}
+            Acct: <span className='text-foreground font-medium'>1229203111</span> ·{" "}
+            Name: <span className='text-foreground font-medium'>NFVCB STAFF CO SOC LTD</span>
+          </p>
+          <p className='text-muted-foreground mt-1'>
+            Narration: <span className='text-foreground font-medium'>Quick Loan Repayment - {userName}</span>
+          </p>
+        </div>
       </div>
     </div>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className='flex flex-col items-center justify-center py-8 text-center gap-2'>
+      <div className='w-12 h-12 rounded-full bg-muted flex items-center justify-center'>
+        <FileText className='w-5 h-5 text-muted-foreground' />
+      </div>
+      <p className='text-sm text-muted-foreground'>{message}</p>
+    </div>
+  );
+}
+
+function FormField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className='space-y-1.5'>
+      <Label className='text-xs font-medium text-muted-foreground'>{label}</Label>
+      {children}
+    </div>
+  );
+}
+
+function PaginationControls({
+  page,
+  total,
+  onPrev,
+  onNext,
+}: {
+  page: number;
+  total: number;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  if (total <= 1) return null;
+  return (
+    <div className='flex items-center justify-between pt-3 border-t border-border/40'>
+      <Button variant='ghost' size='sm' onClick={onPrev} disabled={page === 1} className='gap-1 text-xs'>
+        <ChevronLeft className='w-3.5 h-3.5' /> Prev
+      </Button>
+      <span className='text-xs text-muted-foreground'>{page} / {total}</span>
+      <Button variant='ghost' size='sm' onClick={onNext} disabled={page === total} className='gap-1 text-xs'>
+        Next <ChevronRight className='w-3.5 h-3.5' />
+      </Button>
+    </div>
+  );
+}
+
+function CloseButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className='w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'>
+      <XCircle className='w-4 h-4' />
+    </button>
   );
 }
