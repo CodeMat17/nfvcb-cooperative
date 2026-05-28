@@ -62,8 +62,8 @@ export function LoanApplicationDialog({
       icon: Users,
       duration: "2 years",
       maxAmount: "₦2,000,000",
-      color: "text-purple-600",
-      bgColor: "bg-purple-50 dark:bg-purple-950/20",
+      color: "text-teal-600",
+      bgColor: "bg-teal-50 dark:bg-teal-950/20",
     },
   };
 
@@ -146,7 +146,7 @@ export function LoanApplicationDialog({
               className={
                 loanType === "quick"
                   ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-purple-600 hover:bg-purple-700"
+                  : "bg-teal-600 hover:bg-teal-700"
               }>
               {isSubmitting ? (
                 <>

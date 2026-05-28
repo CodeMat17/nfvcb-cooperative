@@ -62,7 +62,7 @@ export default function NotAdminPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.42 }}>
             <Link href='/'>
-              <Button className='w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white border-0 shadow-md shadow-indigo-500/20 gap-2'>
+              <Button className='w-full rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-md shadow-green-500/20 gap-2'>
                 <ArrowLeft className='w-4 h-4' />
                 Go Back to Homepage
               </Button>

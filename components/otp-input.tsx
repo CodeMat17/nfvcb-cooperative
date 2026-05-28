@@ -101,10 +101,10 @@ export function OTPInput({
                   bg-white dark:bg-slate-900
                   ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-text"}
                   ${activeIndex === index
-                    ? "border-indigo-500 shadow-lg shadow-indigo-500/20 scale-105 bg-indigo-50 dark:bg-indigo-950/30"
+                    ? "border-green-500 shadow-lg shadow-green-500/20 scale-105 bg-green-50 dark:bg-green-950/30"
                     : digit
-                      ? "border-indigo-400/60 bg-indigo-50/50 dark:bg-indigo-950/20 dark:border-indigo-600/40"
-                      : "border-border hover:border-indigo-300 dark:hover:border-indigo-700"
+                      ? "border-green-400/60 bg-green-50/50 dark:bg-green-950/20 dark:border-green-600/40"
+                      : "border-border hover:border-green-300 dark:hover:border-green-700"
                   }
                 `}
                 style={{ width: "2.75rem", height: "3.25rem" }}
@@ -113,7 +113,7 @@ export function OTPInput({
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className='absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-indigo-500'
+                  className='absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-green-500'
                 />
               )}
             </div>
@@ -124,7 +124,7 @@ export function OTPInput({
       {/* Progress bar */}
       <div className='h-0.5 bg-border rounded-full overflow-hidden mx-4'>
         <motion.div
-          className='h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full'
+          className='h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full'
           initial={{ width: "0%" }}
           animate={{ width: `${(filledCount / length) * 100}%` }}
           transition={{ type: "spring", damping: 20, stiffness: 200 }}

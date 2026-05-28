@@ -63,7 +63,11 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { type: "spring" as const, damping: 20, stiffness: 280 } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring" as const, damping: 20, stiffness: 280 },
+  },
 };
 
 export function UserDashboard({ user, onLogout }: UserDashboardProps) {
@@ -114,31 +118,31 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
   ];
 
   const hasActiveQuickLoan = userLoans?.quickLoans?.some(
-    (loan) => loan.status === "processing" || loan.status === "approved"
+    (loan) => loan.status === "processing" || loan.status === "approved",
   );
 
   const currentQuickLoan = userLoans?.quickLoans?.find(
-    (loan) => loan.status === "processing" || loan.status === "approved"
+    (loan) => loan.status === "processing" || loan.status === "approved",
   );
 
   const loansPerPage = 10;
   const quickLoansToShow = userLoans?.quickLoans?.slice(
     (quickLoanPage - 1) * loansPerPage,
-    quickLoanPage * loansPerPage
+    quickLoanPage * loansPerPage,
   );
   const coreLoansToShow = userLoans?.coreLoans?.slice(
     (coreLoanPage - 1) * loansPerPage,
-    coreLoanPage * loansPerPage
+    coreLoanPage * loansPerPage,
   );
   const totalQuickLoanPages = Math.ceil(
-    (userLoans?.quickLoans?.length || 0) / loansPerPage
+    (userLoans?.quickLoans?.length || 0) / loansPerPage,
   );
   const totalCoreLoanPages = Math.ceil(
-    (userLoans?.coreLoans?.length || 0) / loansPerPage
+    (userLoans?.coreLoans?.length || 0) / loansPerPage,
   );
 
   const hasActiveCoreLoan = userLoans?.coreLoans?.some(
-    (loan) => loan.status === "processing" || loan.status === "approved"
+    (loan) => loan.status === "processing" || loan.status === "approved",
   );
 
   const handleQuickLoanSubmit = async () => {
@@ -161,7 +165,7 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
       setPinConfirmation("");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to submit application"
+        error instanceof Error ? error.message : "Failed to submit application",
       );
     }
   };
@@ -185,17 +189,28 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
 
   const handleCoreLoanSubmit = async () => {
     const requiredFields = [
-      "mobileNumber", "amountRequested", "accountNumber", "accountName",
-      "bank", "guarantor1Name", "guarantor1Phone", "guarantor2Name", "guarantor2Phone",
+      "mobileNumber",
+      "amountRequested",
+      "accountNumber",
+      "accountName",
+      "bank",
+      "guarantor1Name",
+      "guarantor1Phone",
+      "guarantor2Name",
+      "guarantor2Phone",
     ];
     for (const field of requiredFields) {
       if (!coreLoanForm[field as keyof typeof coreLoanForm]) {
-        toast.error(`Please fill in ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`);
+        toast.error(
+          `Please fill in ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`,
+        );
         return;
       }
     }
     if (!validatePhoneNumber(coreLoanForm.mobileNumber)) {
-      toast.error("Please enter a valid Nigerian mobile number (e.g., 08012345678 or +2348012345678)");
+      toast.error(
+        "Please enter a valid Nigerian mobile number (e.g., 08012345678 or +2348012345678)",
+      );
       return;
     }
     if (!validateAmount(coreLoanForm.amountRequested)) {
@@ -240,13 +255,19 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
       toast.success("Core loan application submitted successfully!");
       setShowCoreLoanForm(false);
       setCoreLoanForm({
-        mobileNumber: "", amountRequested: "", accountNumber: "",
-        accountName: "", bank: "", guarantor1Name: "", guarantor1Phone: "",
-        guarantor2Name: "", guarantor2Phone: "",
+        mobileNumber: "",
+        amountRequested: "",
+        accountNumber: "",
+        accountName: "",
+        bank: "",
+        guarantor1Name: "",
+        guarantor1Phone: "",
+        guarantor2Name: "",
+        guarantor2Phone: "",
       });
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to submit application"
+        error instanceof Error ? error.message : "Failed to submit application",
       );
     }
   };
@@ -255,31 +276,35 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
     switch (status) {
       case "processing":
         return {
-          color: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800/50",
+          color:
+            "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800/50",
           dot: "bg-amber-500",
           icon: <Clock className='h-3.5 w-3.5' />,
           border: "border-l-amber-500",
         };
       case "approved":
         return {
-          color: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800/50",
+          color:
+            "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800/50",
           dot: "bg-emerald-500",
           icon: <CheckCircle className='h-3.5 w-3.5' />,
           border: "border-l-emerald-500",
         };
       case "rejected":
         return {
-          color: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800/50",
+          color:
+            "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800/50",
           dot: "bg-rose-500",
           icon: <XCircle className='h-3.5 w-3.5' />,
           border: "border-l-rose-500",
         };
       case "cleared":
         return {
-          color: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/30 dark:text-indigo-400 dark:border-indigo-800/50",
-          dot: "bg-indigo-500",
+          color:
+            "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800/50",
+          dot: "bg-green-500",
           icon: <CheckCircle className='h-3.5 w-3.5' />,
-          border: "border-l-indigo-500",
+          border: "border-l-green-500",
         };
       default:
         return {
@@ -305,15 +330,14 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
     .toUpperCase();
 
   return (
-    <div className='min-h-[calc(100vh-57px)] bg-gradient-to-br from-slate-50 via-indigo-50/20 to-violet-50/20 dark:from-slate-950 dark:via-slate-950 dark:to-indigo-950/20'>
+    <div className='min-h-[calc(100vh-57px)] bg-gradient-to-br from-slate-50 via-green-50/20 to-emerald-50/20 dark:from-slate-950 dark:via-slate-950 dark:to-green-950/20'>
       <div className='max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6'>
-
         {/* ── Hero Welcome Banner ── */}
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", damping: 22, stiffness: 200 }}>
-          <div className='relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 p-6 sm:p-8 text-white shadow-xl shadow-indigo-500/20'>
+          <div className='relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700 p-6 sm:p-8 text-white shadow-xl shadow-green-500/20'>
             {/* Decorative circles */}
             <div className='absolute -top-12 -right-12 w-48 h-48 rounded-full bg-white/8 pointer-events-none' />
             <div className='absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-white/5 pointer-events-none' />
@@ -325,12 +349,19 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                 <motion.div
                   initial={{ scale: 0, rotate: -10 }}
                   animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", damping: 14, stiffness: 260, delay: 0.1 }}
-                  className='w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-xl font-bold shadow-lg shrink-0'>
+                  transition={{
+                    type: "spring",
+                    damping: 14,
+                    stiffness: 260,
+                    delay: 0.1,
+                  }}
+                  className='w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-xl font-bold shadow-lg shrink-0'>
                   {userInitials}
                 </motion.div>
                 <div>
-                  <p className='text-white/70 text-sm font-medium'>Welcome back</p>
+                  <p className='text-white/70 text-sm font-medium'>
+                    Welcome back
+                  </p>
                   <h1 className='text-lg sm:text-xl font-bold uppercase tracking-wide leading-tight'>
                     {user.name}
                   </h1>
@@ -401,14 +432,29 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
             transition={{ delay: 0.15 }}>
             <TabsList className='w-full grid grid-cols-3 h-auto p-1 gap-1 bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm border border-border/50 rounded-xl shadow-sm'>
               {[
-                { value: "overview", label: "Overview", short: "Overview", icon: LayoutDashboard },
-                { value: "loans", label: "Applications", short: "Loans", icon: FileText },
-                { value: "history", label: "History", short: "History", icon: History },
+                {
+                  value: "overview",
+                  label: "Overview",
+                  short: "Overview",
+                  icon: LayoutDashboard,
+                },
+                {
+                  value: "loans",
+                  label: "Applications",
+                  short: "Loans",
+                  icon: FileText,
+                },
+                {
+                  value: "history",
+                  label: "History",
+                  short: "History",
+                  icon: History,
+                },
               ].map(({ value, label, short, icon: Icon }) => (
                 <TabsTrigger
                   key={value}
                   value={value}
-                  className='flex items-center justify-center gap-1.5 py-2.5 text-xs sm:text-sm font-medium rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 transition-all duration-200'>
+                  className='flex items-center justify-center gap-1.5 py-2.5 text-xs sm:text-sm font-medium rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm data-[state=active]:text-green-600 dark:data-[state=active]:text-green-400 transition-all duration-200'>
                   <Icon className='w-3.5 h-3.5' />
                   <span className='hidden sm:inline'>{label}</span>
                   <span className='sm:hidden'>{short}</span>
@@ -424,19 +470,20 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
               initial='hidden'
               animate='visible'
               className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5'>
-
               {/* Quick Loan Card */}
               <motion.div variants={itemVariants}>
                 <div className='h-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm overflow-hidden'>
                   {/* Card accent top */}
-                  <div className='h-1 bg-gradient-to-r from-indigo-500 to-blue-500' />
+                  <div className='h-1 bg-gradient-to-r from-green-500 to-teal-500' />
                   <div className='p-5 sm:p-6'>
                     <div className='flex items-start gap-3 mb-4'>
-                      <div className='w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center shrink-0'>
-                        <TrendingUp className='w-5 h-5 text-indigo-600 dark:text-indigo-400' />
+                      <div className='w-10 h-10 rounded-xl bg-green-50 dark:bg-green-950/40 border border-green-100 dark:border-green-900/50 flex items-center justify-center shrink-0'>
+                        <TrendingUp className='w-5 h-5 text-green-600 dark:text-green-400' />
                       </div>
                       <div>
-                        <h3 className='font-bold text-foreground'>Quick Loan</h3>
+                        <h3 className='font-bold text-foreground'>
+                          Quick Loan
+                        </h3>
                         <p className='text-xs text-muted-foreground mt-0.5'>
                           6 months • 5% interest • Fast approval
                         </p>
@@ -451,7 +498,10 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                           message='Your application is being reviewed. You will be notified upon approval.'
                         />
                       ) : currentQuickLoan?.status === "approved" ? (
-                        <ApprovedLoanCard loan={currentQuickLoan} userName={user.name} />
+                        <ApprovedLoanCard
+                          loan={currentQuickLoan}
+                          userName={user.name}
+                        />
                       ) : (
                         <StatusBanner
                           type='warning'
@@ -460,10 +510,12 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                         />
                       )
                     ) : (
-                      <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                      <motion.div
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}>
                         <Button
                           onClick={() => setShowQuickLoanForm(true)}
-                          className='w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white border-0 shadow-md shadow-indigo-500/20 gap-2'>
+                          className='w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white border-0 shadow-md shadow-green-500/20 gap-2'>
                           Apply for Quick Loan
                           <ArrowRight className='w-4 h-4' />
                         </Button>
@@ -476,11 +528,11 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
               {/* Core Loan Card */}
               <motion.div variants={itemVariants}>
                 <div className='h-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm overflow-hidden'>
-                  <div className='h-1 bg-gradient-to-r from-violet-500 to-purple-500' />
+                  <div className='h-1 bg-gradient-to-r from-emerald-500 to-teal-500' />
                   <div className='p-5 sm:p-6'>
                     <div className='flex items-start gap-3 mb-4'>
-                      <div className='w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-950/40 border border-violet-100 dark:border-violet-900/50 flex items-center justify-center shrink-0'>
-                        <Building2 className='w-5 h-5 text-violet-600 dark:text-violet-400' />
+                      <div className='w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900/50 flex items-center justify-center shrink-0'>
+                        <Building2 className='w-5 h-5 text-emerald-600 dark:text-emerald-400' />
                       </div>
                       <div>
                         <h3 className='font-bold text-foreground'>Core Loan</h3>
@@ -492,10 +544,10 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
 
                     {(() => {
                       const processingCoreLoan = userLoans?.coreLoans?.find(
-                        (loan) => loan.status === "processing"
+                        (loan) => loan.status === "processing",
                       );
                       const activeCoreLoan = userLoans?.coreLoans?.find(
-                        (loan) => loan.status === "approved"
+                        (loan) => loan.status === "approved",
                       );
 
                       if (processingCoreLoan) {
@@ -515,10 +567,12 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                               icon={<CheckCircle className='w-4 h-4' />}
                               message='You have an active core loan. You may apply for another.'
                             />
-                            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                            <motion.div
+                              whileHover={{ scale: 1.01 }}
+                              whileTap={{ scale: 0.99 }}>
                               <Button
                                 onClick={() => setShowCoreLoanForm(true)}
-                                className='w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white border-0 shadow-md shadow-violet-500/20 gap-2'>
+                                className='w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white border-0 shadow-md shadow-emerald-500/20 gap-2'>
                                 Apply for Another Loan
                                 <ArrowRight className='w-4 h-4' />
                               </Button>
@@ -527,10 +581,12 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                         );
                       }
                       return (
-                        <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                        <motion.div
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.99 }}>
                           <Button
                             onClick={() => setShowCoreLoanForm(true)}
-                            className='w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white border-0 shadow-md shadow-violet-500/20 gap-2'>
+                            className='w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white border-0 shadow-md shadow-emerald-500/20 gap-2'>
                             Apply for Core Loan
                             <ArrowRight className='w-4 h-4' />
                           </Button>
@@ -550,26 +606,42 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
               initial='hidden'
               animate='visible'
               className='space-y-5'>
-
               {/* Repayment Info */}
               <motion.div variants={itemVariants}>
                 <div className='bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm p-5'>
                   <div className='flex items-center gap-2 mb-3'>
-                    <CreditCard className='w-4 h-4 text-indigo-600 dark:text-indigo-400' />
-                    <h3 className='font-semibold text-sm'>Repayment Bank Details</h3>
+                    <CreditCard className='w-4 h-4 text-green-600 dark:text-green-400' />
+                    <h3 className='font-semibold text-sm'>
+                      Repayment Bank Details
+                    </h3>
                   </div>
                   <div className='grid sm:grid-cols-2 gap-3'>
                     {["Quick Loan", "Core Loan"].map((type) => (
                       <div
                         key={type}
                         className='bg-muted/50 dark:bg-slate-800/50 rounded-xl p-3.5 border border-border/40'>
-                        <p className='text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-2'>
+                        <p className='text-xs font-semibold text-green-600 dark:text-green-400 mb-2'>
                           {type} Repayment
                         </p>
                         <div className='space-y-0.5 text-xs text-muted-foreground'>
-                          <p><span className='font-medium text-foreground'>Bank:</span> Zenith Bank</p>
-                          <p><span className='font-medium text-foreground'>Account:</span> 1229203111</p>
-                          <p><span className='font-medium text-foreground'>Name:</span> NFVCB STAFF CO SOC LTD</p>
+                          <p>
+                            <span className='font-medium text-foreground'>
+                              Bank:
+                            </span>{" "}
+                            Zenith Bank
+                          </p>
+                          <p>
+                            <span className='font-medium text-foreground'>
+                              Account:
+                            </span>{" "}
+                            1229203111
+                          </p>
+                          <p>
+                            <span className='font-medium text-foreground'>
+                              Name:
+                            </span>{" "}
+                            NFVCB STAFF CO SOC LTD
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -582,10 +654,10 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                 {/* Quick Loans */}
                 <motion.div variants={itemVariants}>
                   <div className='bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm overflow-hidden'>
-                    <div className='h-1 bg-gradient-to-r from-indigo-500 to-blue-500' />
+                    <div className='h-1 bg-gradient-to-r from-green-500 to-teal-500' />
                     <div className='p-5'>
                       <div className='flex items-center gap-2 mb-4'>
-                        <TrendingUp className='w-4 h-4 text-indigo-600 dark:text-indigo-400' />
+                        <TrendingUp className='w-4 h-4 text-green-600 dark:text-green-400' />
                         <h3 className='font-semibold'>Quick Loans</h3>
                         {userLoans?.quickLoans?.length ? (
                           <span className='ml-auto text-xs text-muted-foreground bg-muted rounded-full px-2 py-0.5'>
@@ -608,19 +680,44 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                                 transition={{ delay: i * 0.05 }}
                                 className={`border-l-4 ${cfg.border} bg-muted/30 dark:bg-slate-800/40 rounded-r-xl p-3.5 space-y-1`}>
                                 <div className='flex items-center justify-between gap-2'>
-                                  <p className='font-bold text-sm'>₦{loan.amount.toLocaleString()}</p>
-                                  <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${cfg.color}`}>
+                                  <p className='font-bold text-sm'>
+                                    ₦{loan.amount.toLocaleString()}
+                                  </p>
+                                  <span
+                                    className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${cfg.color}`}>
                                     {cfg.icon}
-                                    <span className='capitalize'>{loan.status}</span>
+                                    <span className='capitalize'>
+                                      {loan.status}
+                                    </span>
                                   </span>
                                 </div>
                                 <div className='grid grid-cols-2 gap-x-3 text-[11px] text-muted-foreground'>
-                                  <span>Applied: {dayjs(loan.dateApplied).format("MMM D, YYYY")}</span>
-                                  {loan.dateApproved && <span>Approved: {dayjs(loan.dateApproved).format("MMM D, YYYY")}</span>}
-                                  {loan.expiryDate && <span>Expires: {dayjs(loan.expiryDate).format("MMM D, YYYY")}</span>}
+                                  <span>
+                                    Applied:{" "}
+                                    {dayjs(loan.dateApplied).format(
+                                      "MMM D, YYYY",
+                                    )}
+                                  </span>
+                                  {loan.dateApproved && (
+                                    <span>
+                                      Approved:{" "}
+                                      {dayjs(loan.dateApproved).format(
+                                        "MMM D, YYYY",
+                                      )}
+                                    </span>
+                                  )}
+                                  {loan.expiryDate && (
+                                    <span>
+                                      Expires:{" "}
+                                      {dayjs(loan.expiryDate).format(
+                                        "MMM D, YYYY",
+                                      )}
+                                    </span>
+                                  )}
                                   {loan.totalRepayment && (
                                     <span className='text-emerald-600 dark:text-emerald-400 font-medium'>
-                                      Repay: ₦{loan.totalRepayment.toLocaleString()}
+                                      Repay: ₦
+                                      {loan.totalRepayment.toLocaleString()}
                                     </span>
                                   )}
                                 </div>
@@ -630,8 +727,14 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                           <PaginationControls
                             page={quickLoanPage}
                             total={totalQuickLoanPages}
-                            onPrev={() => setQuickLoanPage((p) => Math.max(1, p - 1))}
-                            onNext={() => setQuickLoanPage((p) => Math.min(totalQuickLoanPages, p + 1))}
+                            onPrev={() =>
+                              setQuickLoanPage((p) => Math.max(1, p - 1))
+                            }
+                            onNext={() =>
+                              setQuickLoanPage((p) =>
+                                Math.min(totalQuickLoanPages, p + 1),
+                              )
+                            }
                           />
                         </div>
                       )}
@@ -642,10 +745,10 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                 {/* Core Loans */}
                 <motion.div variants={itemVariants}>
                   <div className='bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm overflow-hidden'>
-                    <div className='h-1 bg-gradient-to-r from-violet-500 to-purple-500' />
+                    <div className='h-1 bg-gradient-to-r from-emerald-500 to-teal-500' />
                     <div className='p-5'>
                       <div className='flex items-center gap-2 mb-4'>
-                        <Building2 className='w-4 h-4 text-violet-600 dark:text-violet-400' />
+                        <Building2 className='w-4 h-4 text-emerald-600 dark:text-emerald-400' />
                         <h3 className='font-semibold'>Core Loans</h3>
                         {userLoans?.coreLoans?.length ? (
                           <span className='ml-auto text-xs text-muted-foreground bg-muted rounded-full px-2 py-0.5'>
@@ -668,16 +771,40 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                                 transition={{ delay: i * 0.05 }}
                                 className={`border-l-4 ${cfg.border} bg-muted/30 dark:bg-slate-800/40 rounded-r-xl p-3.5 space-y-1`}>
                                 <div className='flex items-center justify-between gap-2'>
-                                  <p className='font-bold text-sm'>₦{loan.amountRequested.toLocaleString()}</p>
-                                  <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${cfg.color}`}>
+                                  <p className='font-bold text-sm'>
+                                    ₦{loan.amountRequested.toLocaleString()}
+                                  </p>
+                                  <span
+                                    className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${cfg.color}`}>
                                     {cfg.icon}
-                                    <span className='capitalize'>{loan.status}</span>
+                                    <span className='capitalize'>
+                                      {loan.status}
+                                    </span>
                                   </span>
                                 </div>
                                 <div className='grid grid-cols-2 gap-x-3 text-[11px] text-muted-foreground'>
-                                  <span>Applied: {dayjs(loan.dateApplied).format("MMM D, YYYY")}</span>
-                                  {loan.dateApproved && <span>Approved: {dayjs(loan.dateApproved).format("MMM D, YYYY")}</span>}
-                                  {loan.expiryDate && <span>Expires: {dayjs(loan.expiryDate).format("MMM D, YYYY")}</span>}
+                                  <span>
+                                    Applied:{" "}
+                                    {dayjs(loan.dateApplied).format(
+                                      "MMM D, YYYY",
+                                    )}
+                                  </span>
+                                  {loan.dateApproved && (
+                                    <span>
+                                      Approved:{" "}
+                                      {dayjs(loan.dateApproved).format(
+                                        "MMM D, YYYY",
+                                      )}
+                                    </span>
+                                  )}
+                                  {loan.expiryDate && (
+                                    <span>
+                                      Expires:{" "}
+                                      {dayjs(loan.expiryDate).format(
+                                        "MMM D, YYYY",
+                                      )}
+                                    </span>
+                                  )}
                                 </div>
                               </motion.div>
                             );
@@ -685,8 +812,14 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                           <PaginationControls
                             page={coreLoanPage}
                             total={totalCoreLoanPages}
-                            onPrev={() => setCoreLoanPage((p) => Math.max(1, p - 1))}
-                            onNext={() => setCoreLoanPage((p) => Math.min(totalCoreLoanPages, p + 1))}
+                            onPrev={() =>
+                              setCoreLoanPage((p) => Math.max(1, p - 1))
+                            }
+                            onNext={() =>
+                              setCoreLoanPage((p) =>
+                                Math.min(totalCoreLoanPages, p + 1),
+                              )
+                            }
                           />
                         </div>
                       )}
@@ -706,7 +839,7 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
               <motion.div variants={itemVariants}>
                 <div className='bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-border/60 shadow-sm p-5 sm:p-6'>
                   <div className='flex items-center gap-2 mb-5'>
-                    <History className='w-4 h-4 text-indigo-600 dark:text-indigo-400' />
+                    <History className='w-4 h-4 text-green-600 dark:text-green-400' />
                     <h3 className='font-semibold'>Activity History</h3>
                     {activityHistory?.length ? (
                       <span className='ml-auto text-xs text-muted-foreground bg-muted rounded-full px-2 py-0.5'>
@@ -731,7 +864,8 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                             className='flex gap-3 sm:gap-4'>
                             {/* Timeline connector */}
                             <div className='flex flex-col items-center'>
-                              <div className={`w-8 h-8 rounded-full border-2 border-background flex items-center justify-center shrink-0 ${cfg.color.split(' ').slice(0, 2).join(' ')}`}>
+                              <div
+                                className={`w-8 h-8 rounded-full border-2 border-background flex items-center justify-center shrink-0 ${cfg.color.split(" ").slice(0, 2).join(" ")}`}>
                                 {cfg.icon}
                               </div>
                               {!isLast && (
@@ -740,16 +874,23 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                             </div>
 
                             {/* Content */}
-                            <div className={`flex-1 ${isLast ? "pb-0" : "pb-4"}`}>
+                            <div
+                              className={`flex-1 ${isLast ? "pb-0" : "pb-4"}`}>
                               <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-1'>
-                                <p className='font-medium text-sm'>{activity.action}</p>
-                                <Badge variant='outline' className='text-[10px] capitalize w-fit'>
+                                <p className='font-medium text-sm'>
+                                  {activity.action}
+                                </p>
+                                <Badge
+                                  variant='outline'
+                                  className='text-[10px] capitalize w-fit'>
                                   {activity.loanType} Loan
                                 </Badge>
                               </div>
                               <div className='flex items-center gap-3 mt-0.5'>
                                 <p className='text-xs text-muted-foreground'>
-                                  {dayjs(activity.date).format("MMM D, YYYY · HH:mm")}
+                                  {dayjs(activity.date).format(
+                                    "MMM D, YYYY · HH:mm",
+                                  )}
                                 </p>
                                 {activity.loanAmount ? (
                                   <p className='text-xs font-semibold text-emerald-600 dark:text-emerald-400'>
@@ -772,14 +913,19 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
 
       {/* ── Quick Loan Sheet ── */}
       <Sheet open={showQuickLoanForm} onOpenChange={setShowQuickLoanForm}>
-        <SheetContent side='right' showCloseButton={false} className='w-full sm:max-w-md overflow-y-auto p-0'>
+        <SheetContent
+          side='right'
+          showCloseButton={false}
+          className='w-full sm:max-w-md overflow-y-auto p-0'>
           <SheetHeader className='border-b border-border/40 pb-4'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2.5'>
-                <div className='w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/40 flex items-center justify-center'>
-                  <TrendingUp className='w-4 h-4 text-indigo-600 dark:text-indigo-400' />
+                <div className='w-8 h-8 rounded-lg bg-green-100 dark:bg-green-950/40 flex items-center justify-center'>
+                  <TrendingUp className='w-4 h-4 text-green-600 dark:text-green-400' />
                 </div>
-                <SheetTitle className='text-lg font-bold'>Quick Loan Application</SheetTitle>
+                <SheetTitle className='text-lg font-bold'>
+                  Quick Loan Application
+                </SheetTitle>
               </div>
               <CloseButton onClick={() => setShowQuickLoanForm(false)} />
             </div>
@@ -787,21 +933,27 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
 
           <div className='p-6 space-y-4'>
             {/* Terms */}
-            <div className='bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 rounded-xl p-4'>
+            <div className='bg-green-50 dark:bg-green-950/30 border border-green-100 dark:border-green-900/50 rounded-xl p-4'>
               <div className='flex items-start gap-2'>
-                <FileText className='w-4 h-4 text-indigo-600 dark:text-indigo-400 mt-0.5 shrink-0' />
-                <div className='text-xs text-indigo-900 dark:text-indigo-200 space-y-1'>
-                  <p className='font-semibold text-sm mb-1.5'>Terms & Conditions</p>
+                <FileText className='w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0' />
+                <div className='text-xs text-green-900 dark:text-green-200 space-y-1'>
+                  <p className='font-semibold text-sm mb-1.5'>
+                    Terms & Conditions
+                  </p>
                   <p>• 5% interest rate on the principal amount</p>
                   <p>• Repayment period: 6 months from disbursement</p>
-                  <p>• Defaulting will result in blacklisting from future loans</p>
+                  <p>
+                    • Defaulting will result in blacklisting from future loans
+                  </p>
                 </div>
               </div>
             </div>
 
             <FormField label='Select Loan Amount'>
-              <Select value={quickLoanAmount} onValueChange={setQuickLoanAmount}>
-                <SelectTrigger className='rounded-xl border-border/60 focus:ring-indigo-500/20 focus:border-indigo-400'>
+              <Select
+                value={quickLoanAmount}
+                onValueChange={setQuickLoanAmount}>
+                <SelectTrigger className='rounded-xl border-border/60 focus:ring-green-500/20 focus:border-green-400'>
                   <SelectValue placeholder='Choose amount' />
                 </SelectTrigger>
                 <SelectContent>
@@ -825,11 +977,17 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                 </div>
                 <div>
                   <span className='text-muted-foreground'>Interest (5%):</span>{" "}
-                  <strong>₦{(parseInt(quickLoanAmount) * 0.05).toLocaleString()}</strong>
+                  <strong>
+                    ₦{(parseInt(quickLoanAmount) * 0.05).toLocaleString()}
+                  </strong>
                 </div>
                 <div className='col-span-2'>
-                  <span className='text-muted-foreground'>Total repayment:</span>{" "}
-                  <strong className='text-base'>₦{(parseInt(quickLoanAmount) * 1.05).toLocaleString()}</strong>
+                  <span className='text-muted-foreground'>
+                    Total repayment:
+                  </span>{" "}
+                  <strong className='text-base'>
+                    ₦{(parseInt(quickLoanAmount) * 1.05).toLocaleString()}
+                  </strong>
                 </div>
               </motion.div>
             )}
@@ -841,7 +999,7 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                 value={pinConfirmation}
                 onChange={(e) => setPinConfirmation(e.target.value)}
                 maxLength={6}
-                className='rounded-xl border-border/60 focus-visible:ring-indigo-500/20 focus-visible:border-indigo-400'
+                className='rounded-xl border-border/60 focus-visible:ring-green-500/20 focus-visible:border-green-400'
               />
             </FormField>
 
@@ -855,7 +1013,7 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
               <Button
                 onClick={handleQuickLoanSubmit}
                 disabled={!quickLoanAmount || pinConfirmation.length !== 6}
-                className='flex-1 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white border-0 shadow-md shadow-indigo-500/20'>
+                className='flex-1 rounded-xl bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white border-0 shadow-md shadow-green-500/20'>
                 Submit Application
               </Button>
             </div>
@@ -865,14 +1023,19 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
 
       {/* ── Core Loan Sheet ── */}
       <Sheet open={showCoreLoanForm} onOpenChange={setShowCoreLoanForm}>
-        <SheetContent side='right' showCloseButton={false} className='w-full sm:max-w-2xl overflow-y-auto p-0'>
+        <SheetContent
+          side='right'
+          showCloseButton={false}
+          className='w-full sm:max-w-2xl overflow-y-auto p-0'>
           <SheetHeader className='border-b border-border/40 pb-4'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2.5'>
-                <div className='w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-950/40 flex items-center justify-center'>
-                  <Building2 className='w-4 h-4 text-violet-600 dark:text-violet-400' />
+                <div className='w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/40 flex items-center justify-center'>
+                  <Building2 className='w-4 h-4 text-emerald-600 dark:text-emerald-400' />
                 </div>
-                <SheetTitle className='text-lg font-bold'>Core Loan Application</SheetTitle>
+                <SheetTitle className='text-lg font-bold'>
+                  Core Loan Application
+                </SheetTitle>
               </div>
               <CloseButton onClick={() => setShowCoreLoanForm(false)} />
             </div>
@@ -886,13 +1049,25 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
               </p>
               <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
                 <FormField label='Full Name'>
-                  <Input value={user.name} disabled className='rounded-xl bg-muted/50 border-border/40' />
+                  <Input
+                    value={user.name}
+                    disabled
+                    className='rounded-xl bg-muted/50 border-border/40'
+                  />
                 </FormField>
                 <FormField label='IPPIS'>
-                  <Input value={user.ippis} disabled className='rounded-xl bg-muted/50 border-border/40' />
+                  <Input
+                    value={user.ippis}
+                    disabled
+                    className='rounded-xl bg-muted/50 border-border/40'
+                  />
                 </FormField>
                 <FormField label='Loan Date'>
-                  <Input value={dayjs().format("YYYY-MM-DD")} disabled className='rounded-xl bg-muted/50 border-border/40' />
+                  <Input
+                    value={dayjs().format("YYYY-MM-DD")}
+                    disabled
+                    className='rounded-xl bg-muted/50 border-border/40'
+                  />
                 </FormField>
               </div>
             </div>
@@ -910,9 +1085,15 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                     type='tel'
                     placeholder='e.g., 08012345678'
                     value={coreLoanForm.mobileNumber}
-                    onChange={(e) => setCoreLoanForm({ ...coreLoanForm, mobileNumber: e.target.value.replace(/[^0-9+]/g, "") })}
-                    minLength={11} maxLength={14}
-                    className='rounded-xl border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400'
+                    onChange={(e) =>
+                      setCoreLoanForm({
+                        ...coreLoanForm,
+                        mobileNumber: e.target.value.replace(/[^0-9+]/g, ""),
+                      })
+                    }
+                    minLength={11}
+                    maxLength={14}
+                    className='rounded-xl border-border/60 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-400'
                   />
                 </FormField>
                 <FormField label='Amount Requested *'>
@@ -920,38 +1101,60 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
                     type='number'
                     placeholder='Enter amount in Naira'
                     value={coreLoanForm.amountRequested}
-                    onChange={(e) => setCoreLoanForm({ ...coreLoanForm, amountRequested: e.target.value })}
+                    onChange={(e) =>
+                      setCoreLoanForm({
+                        ...coreLoanForm,
+                        amountRequested: e.target.value,
+                      })
+                    }
                     min='1'
-                    className='rounded-xl border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400'
+                    className='rounded-xl border-border/60 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-400'
                   />
                 </FormField>
                 <FormField label='Account Number *'>
                   <Input
                     placeholder='10-digit account number'
                     value={coreLoanForm.accountNumber}
-                    onChange={(e) => setCoreLoanForm({ ...coreLoanForm, accountNumber: e.target.value })}
-                    minLength={10} maxLength={10}
-                    className='rounded-xl border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400'
+                    onChange={(e) =>
+                      setCoreLoanForm({
+                        ...coreLoanForm,
+                        accountNumber: e.target.value,
+                      })
+                    }
+                    minLength={10}
+                    maxLength={10}
+                    className='rounded-xl border-border/60 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-400'
                   />
                 </FormField>
                 <FormField label='Account Name *'>
                   <Input
                     placeholder='Account holder name'
                     value={coreLoanForm.accountName}
-                    onChange={(e) => setCoreLoanForm({ ...coreLoanForm, accountName: e.target.value })}
-                    className='rounded-xl border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400'
+                    onChange={(e) =>
+                      setCoreLoanForm({
+                        ...coreLoanForm,
+                        accountName: e.target.value,
+                      })
+                    }
+                    className='rounded-xl border-border/60 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-400'
                   />
                 </FormField>
                 <FormField label='Bank *'>
                   <Input
                     placeholder='Bank name'
                     value={coreLoanForm.bank}
-                    onChange={(e) => setCoreLoanForm({ ...coreLoanForm, bank: e.target.value })}
-                    className='rounded-xl border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400'
+                    onChange={(e) =>
+                      setCoreLoanForm({ ...coreLoanForm, bank: e.target.value })
+                    }
+                    className='rounded-xl border-border/60 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-400'
                   />
                 </FormField>
                 <FormField label='Existing Loan'>
-                  <Input value={hasActiveCoreLoan ? "Yes" : "No"} disabled className='rounded-xl bg-muted/50 border-border/40' />
+                  <Input
+                    value={hasActiveCoreLoan ? "Yes" : "No"}
+                    disabled
+                    className='rounded-xl bg-muted/50 border-border/40'
+                  />
                 </FormField>
               </div>
             </div>
@@ -965,25 +1168,51 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
               </p>
               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
                 {[1, 2].map((n) => (
-                  <div key={n} className='bg-muted/30 dark:bg-slate-800/40 rounded-xl p-3.5 space-y-3'>
-                    <p className='text-xs font-semibold text-muted-foreground'>Guarantor {n}</p>
+                  <div
+                    key={n}
+                    className='bg-muted/30 dark:bg-slate-800/40 rounded-xl p-3.5 space-y-3'>
+                    <p className='text-xs font-semibold text-muted-foreground'>
+                      Guarantor {n}
+                    </p>
                     <FormField label='Full Name *'>
                       <Input
                         placeholder='Min. 7 characters'
-                        value={coreLoanForm[`guarantor${n}Name` as keyof typeof coreLoanForm]}
-                        onChange={(e) => setCoreLoanForm({ ...coreLoanForm, [`guarantor${n}Name`]: e.target.value })}
+                        value={
+                          coreLoanForm[
+                            `guarantor${n}Name` as keyof typeof coreLoanForm
+                          ]
+                        }
+                        onChange={(e) =>
+                          setCoreLoanForm({
+                            ...coreLoanForm,
+                            [`guarantor${n}Name`]: e.target.value,
+                          })
+                        }
                         minLength={7}
-                        className='rounded-lg border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400 bg-background'
+                        className='rounded-lg border-border/60 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-400 bg-background'
                       />
                     </FormField>
                     <FormField label='Phone Number *'>
                       <Input
                         type='tel'
                         placeholder='e.g., 08012345678'
-                        value={coreLoanForm[`guarantor${n}Phone` as keyof typeof coreLoanForm]}
-                        onChange={(e) => setCoreLoanForm({ ...coreLoanForm, [`guarantor${n}Phone`]: e.target.value.replace(/[^0-9+]/g, "") })}
-                        minLength={11} maxLength={14}
-                        className='rounded-lg border-border/60 focus-visible:ring-violet-500/20 focus-visible:border-violet-400 bg-background'
+                        value={
+                          coreLoanForm[
+                            `guarantor${n}Phone` as keyof typeof coreLoanForm
+                          ]
+                        }
+                        onChange={(e) =>
+                          setCoreLoanForm({
+                            ...coreLoanForm,
+                            [`guarantor${n}Phone`]: e.target.value.replace(
+                              /[^0-9+]/g,
+                              "",
+                            ),
+                          })
+                        }
+                        minLength={11}
+                        maxLength={14}
+                        className='rounded-lg border-border/60 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-400 bg-background'
                       />
                     </FormField>
                   </div>
@@ -1000,7 +1229,7 @@ export function UserDashboard({ user, onLogout }: UserDashboardProps) {
               </Button>
               <Button
                 onClick={handleCoreLoanSubmit}
-                className='flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white border-0 shadow-md shadow-violet-500/20'>
+                className='flex-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white border-0 shadow-md shadow-emerald-500/20'>
                 Submit Application
               </Button>
             </div>
@@ -1023,25 +1252,45 @@ function StatusBanner({
   message: string;
 }) {
   const styles = {
-    warning: "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/40 text-amber-800 dark:text-amber-300",
-    success: "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300",
-    info: "bg-indigo-50 dark:bg-indigo-950/20 border-indigo-200 dark:border-indigo-800/40 text-indigo-800 dark:text-indigo-300",
+    warning:
+      "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/40 text-amber-800 dark:text-amber-300",
+    success:
+      "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300",
+    info: "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800/40 text-green-800 dark:text-green-300",
   };
   return (
-    <div className={`flex items-start gap-2.5 p-3.5 rounded-xl border text-sm ${styles[type]}`}>
+    <div
+      className={`flex items-start gap-2.5 p-3.5 rounded-xl border text-sm ${styles[type]}`}>
       <span className='shrink-0 mt-0.5'>{icon}</span>
       <p>{message}</p>
     </div>
   );
 }
 
-function ApprovedLoanCard({ loan, userName }: { loan: { amount: number; totalRepayment?: number; expiryDate?: string; disbursed?: boolean }; userName: string }) {
+function ApprovedLoanCard({
+  loan,
+  userName,
+}: {
+  loan: {
+    amount: number;
+    totalRepayment?: number;
+    expiryDate?: string;
+    disbursed?: boolean;
+  };
+  userName: string;
+}) {
   const isExpired = dayjs(loan.expiryDate).isBefore(dayjs(), "day");
   return (
     <div className='space-y-3'>
       <StatusBanner
         type={isExpired ? "warning" : "success"}
-        icon={isExpired ? <AlertTriangle className='w-4 h-4' /> : <CheckCircle className='w-4 h-4' />}
+        icon={
+          isExpired ? (
+            <AlertTriangle className='w-4 h-4' />
+          ) : (
+            <CheckCircle className='w-4 h-4' />
+          )
+        }
         message={
           isExpired
             ? "Your quick loan has expired and requires immediate attention!"
@@ -1050,15 +1299,20 @@ function ApprovedLoanCard({ loan, userName }: { loan: { amount: number; totalRep
               : "Your loan is approved and awaiting disbursement."
         }
       />
-      <div className={`rounded-xl p-3.5 border ${isExpired ? "bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-800/40" : "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40"}`}>
+      <div
+        className={`rounded-xl p-3.5 border ${isExpired ? "bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-800/40" : "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40"}`}>
         <div className='grid grid-cols-2 gap-2 text-xs mb-3'>
           <div>
             <p className='text-muted-foreground mb-0.5'>Loan Amount</p>
-            <p className='font-bold text-sm'>₦{loan.amount?.toLocaleString()}</p>
+            <p className='font-bold text-sm'>
+              ₦{loan.amount?.toLocaleString()}
+            </p>
           </div>
           <div>
             <p className='text-muted-foreground mb-0.5'>Total Repayment</p>
-            <p className='font-bold text-sm'>₦{loan.totalRepayment?.toLocaleString()}</p>
+            <p className='font-bold text-sm'>
+              ₦{loan.totalRepayment?.toLocaleString()}
+            </p>
           </div>
           <div>
             <p className='text-muted-foreground mb-0.5'>Interest Rate</p>
@@ -1066,7 +1320,8 @@ function ApprovedLoanCard({ loan, userName }: { loan: { amount: number; totalRep
           </div>
           <div>
             <p className='text-muted-foreground mb-0.5'>Expiry Date</p>
-            <p className={`font-semibold ${isExpired ? "text-rose-600 dark:text-rose-400" : ""}`}>
+            <p
+              className={`font-semibold ${isExpired ? "text-rose-600 dark:text-rose-400" : ""}`}>
               {dayjs(loan.expiryDate).format("MMM D, YYYY")}
               {isExpired && " (EXPIRED)"}
             </p>
@@ -1075,12 +1330,20 @@ function ApprovedLoanCard({ loan, userName }: { loan: { amount: number; totalRep
         <div className='bg-background rounded-lg p-2.5 border border-border/50 text-xs'>
           <p className='font-semibold mb-1'>Repayment Details:</p>
           <p className='text-muted-foreground'>
-            Bank: <span className='text-foreground font-medium'>Zenith Bank</span> ·{" "}
-            Acct: <span className='text-foreground font-medium'>1229203111</span> ·{" "}
-            Name: <span className='text-foreground font-medium'>NFVCB STAFF CO SOC LTD</span>
+            Bank:{" "}
+            <span className='text-foreground font-medium'>Zenith Bank</span> ·{" "}
+            Acct:{" "}
+            <span className='text-foreground font-medium'>1229203111</span> ·{" "}
+            Name:{" "}
+            <span className='text-foreground font-medium'>
+              NFVCB STAFF CO SOC LTD
+            </span>
           </p>
           <p className='text-muted-foreground mt-1'>
-            Narration: <span className='text-foreground font-medium'>Quick Loan Repayment - {userName}</span>
+            Narration:{" "}
+            <span className='text-foreground font-medium'>
+              Quick Loan Repayment - {userName}
+            </span>
           </p>
         </div>
       </div>
@@ -1099,10 +1362,18 @@ function EmptyState({ message }: { message: string }) {
   );
 }
 
-function FormField({ label, children }: { label: string; children: React.ReactNode }) {
+function FormField({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className='space-y-1.5'>
-      <Label className='text-xs font-medium text-muted-foreground'>{label}</Label>
+      <Label className='text-xs font-medium text-muted-foreground'>
+        {label}
+      </Label>
       {children}
     </div>
   );
@@ -1122,11 +1393,23 @@ function PaginationControls({
   if (total <= 1) return null;
   return (
     <div className='flex items-center justify-between pt-3 border-t border-border/40'>
-      <Button variant='ghost' size='sm' onClick={onPrev} disabled={page === 1} className='gap-1 text-xs'>
+      <Button
+        variant='ghost'
+        size='sm'
+        onClick={onPrev}
+        disabled={page === 1}
+        className='gap-1 text-xs'>
         <ChevronLeft className='w-3.5 h-3.5' /> Prev
       </Button>
-      <span className='text-xs text-muted-foreground'>{page} / {total}</span>
-      <Button variant='ghost' size='sm' onClick={onNext} disabled={page === total} className='gap-1 text-xs'>
+      <span className='text-xs text-muted-foreground'>
+        {page} / {total}
+      </span>
+      <Button
+        variant='ghost'
+        size='sm'
+        onClick={onNext}
+        disabled={page === total}
+        className='gap-1 text-xs'>
         Next <ChevronRight className='w-3.5 h-3.5' />
       </Button>
     </div>

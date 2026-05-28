@@ -52,23 +52,23 @@ export default function Home() {
   }
 
   return (
-    <div className='relative min-h-[calc(100vh-57px)] overflow-hidden bg-gradient-to-br from-slate-50 via-indigo-50/40 to-violet-50/40 dark:from-slate-950 dark:via-indigo-950/30 dark:to-slate-950 flex items-center justify-center p-4 sm:p-6'>
+    <div className='relative min-h-[calc(100vh-57px)] overflow-hidden bg-gradient-to-br from-slate-50 via-green-50/40 to-emerald-50/40 dark:from-slate-950 dark:via-green-950/30 dark:to-slate-950 flex items-center justify-center p-4 sm:p-6'>
 
       {/* Animated background orbs */}
       <motion.div
         animate={{ x: [0, 25, 0], y: [0, -18, 0] }}
         transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-        className='absolute top-1/4 left-1/6 w-72 h-72 rounded-full bg-indigo-400/10 dark:bg-indigo-500/8 blur-3xl pointer-events-none'
+        className='absolute top-1/4 left-1/6 w-72 h-72 rounded-full bg-green-400/10 dark:bg-green-500/8 blur-3xl pointer-events-none'
       />
       <motion.div
         animate={{ x: [0, -18, 0], y: [0, 22, 0] }}
         transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-        className='absolute bottom-1/4 right-1/6 w-80 h-80 rounded-full bg-violet-400/10 dark:bg-violet-500/8 blur-3xl pointer-events-none'
+        className='absolute bottom-1/4 right-1/6 w-80 h-80 rounded-full bg-emerald-400/10 dark:bg-emerald-500/8 blur-3xl pointer-events-none'
       />
       <motion.div
         animate={{ x: [0, 12, 0], y: [0, 12, 0] }}
         transition={{ duration: 13, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-        className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-purple-300/8 dark:bg-purple-500/5 blur-3xl pointer-events-none'
+        className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-teal-300/8 dark:bg-teal-500/5 blur-3xl pointer-events-none'
       />
 
       {/* Main card */}
@@ -79,12 +79,12 @@ export default function Home() {
         className='relative w-full max-w-md'>
 
         {/* Top accent line */}
-        <div className='absolute -top-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-indigo-500/60 to-transparent' />
+        <div className='absolute -top-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-green-500/60 to-transparent' />
 
-        <div className='relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-2xl border border-white/60 dark:border-white/8 shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 overflow-hidden'>
+        <div className='relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-2xl border border-white/60 dark:border-white/8 shadow-2xl shadow-green-500/5 dark:shadow-green-500/10 overflow-hidden'>
 
           {/* Subtle inner glow top */}
-          <div className='absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-indigo-50/60 dark:from-indigo-950/20 to-transparent pointer-events-none' />
+          <div className='absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-green-50/60 dark:from-green-950/20 to-transparent pointer-events-none' />
 
           <div className='relative p-7 sm:p-9'>
 
@@ -94,7 +94,7 @@ export default function Home() {
                 initial={{ scale: 0.4, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", damping: 14, stiffness: 250, delay: 0.1 }}
-                className='inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/30 mb-4'>
+                className='inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/30 mb-4'>
                 <Image
                   src='/logo.png'
                   alt='NFVCB Cooperative'
@@ -108,13 +108,13 @@ export default function Home() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.4 }}>
-                <p className='text-xs font-semibold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest mb-1'>
+                <p className='text-xs font-semibold text-green-500 dark:text-green-400 uppercase tracking-widest mb-1'>
                   Welcome to
                 </p>
                 <h1 className='text-xl sm:text-2xl font-bold text-foreground leading-tight'>
                   NFVCB Multipurpose
                 </h1>
-                <h2 className='text-xl sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400 bg-clip-text text-transparent leading-tight'>
+                <h2 className='text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent leading-tight'>
                   Cooperative Society
                 </h2>
                 <p className='text-muted-foreground text-sm mt-2'>
@@ -169,11 +169,11 @@ export default function Home() {
                           key={i}
                           animate={{ scale: [1, 1.5, 1], opacity: [0.4, 1, 0.4] }}
                           transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.18 }}
-                          className='w-1.5 h-1.5 rounded-full bg-indigo-500'
+                          className='w-1.5 h-1.5 rounded-full bg-green-500'
                         />
                       ))}
                     </div>
-                    <span className='text-sm text-indigo-600 dark:text-indigo-400 font-medium'>
+                    <span className='text-sm text-green-600 dark:text-green-400 font-medium'>
                       Verifying...
                     </span>
                   </motion.div>
@@ -191,10 +191,10 @@ export default function Home() {
                 whileHover={{ scale: 1.02, y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                className='p-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 cursor-default'>
+                className='p-3.5 rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-100 dark:border-green-900/50 cursor-default'>
                 <div className='flex items-center gap-2 mb-1'>
-                  <div className='w-6 h-6 rounded-lg bg-indigo-500/15 flex items-center justify-center'>
-                    <Zap className='w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400' />
+                  <div className='w-6 h-6 rounded-lg bg-green-500/15 flex items-center justify-center'>
+                    <Zap className='w-3.5 h-3.5 text-green-600 dark:text-green-400' />
                   </div>
                   <span className='text-xs font-semibold text-foreground'>Quick Loans</span>
                 </div>
@@ -205,10 +205,10 @@ export default function Home() {
                 whileHover={{ scale: 1.02, y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                className='p-3.5 rounded-xl bg-violet-50 dark:bg-violet-950/30 border border-violet-100 dark:border-violet-900/50 cursor-default'>
+                className='p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/50 cursor-default'>
                 <div className='flex items-center gap-2 mb-1'>
-                  <div className='w-6 h-6 rounded-lg bg-violet-500/15 flex items-center justify-center'>
-                    <Building2 className='w-3.5 h-3.5 text-violet-600 dark:text-violet-400' />
+                  <div className='w-6 h-6 rounded-lg bg-emerald-500/15 flex items-center justify-center'>
+                    <Building2 className='w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400' />
                   </div>
                   <span className='text-xs font-semibold text-foreground'>Core Loans</span>
                 </div>
@@ -219,7 +219,7 @@ export default function Home() {
         </div>
 
         {/* Bottom accent line */}
-        <div className='absolute -bottom-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent' />
+        <div className='absolute -bottom-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent' />
       </motion.div>
     </div>
   );

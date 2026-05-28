@@ -626,7 +626,7 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12'>
+    <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12'>
       <div className='flex justify-between items-center px-4 mb-4'>
         <Button asChild variant='outline'>
           <Link href='/admin/contribution-update-trigger'>
@@ -694,11 +694,11 @@ export default function AdminDashboard() {
           <Card>
             <CardContent className='px-6 py-4'>
               <div className='flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-3'>
-                <div className='p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg'>
+                <div className='p-2 bg-teal-100 dark:bg-teal-900/20 rounded-lg'>
                   {processingCoreLoans === undefined ? (
-                    <Loader2 className='h-6 w-6 text-purple-600 dark:text-purple-400 animate-spin' />
+                    <Loader2 className='h-6 w-6 text-teal-600 dark:text-teal-400 animate-spin' />
                   ) : (
-                    <Clock className='h-6 w-6 text-purple-600 dark:text-purple-400' />
+                    <Clock className='h-6 w-6 text-teal-600 dark:text-teal-400' />
                   )}
                 </div>
                 <div>
@@ -1008,7 +1008,7 @@ export default function AdminDashboard() {
                                       loan.amount
                                     )
                                   }
-                                  className='bg-purple-600 hover:bg-purple-700'>
+                                  className='bg-teal-600 hover:bg-teal-700'>
                                   Disburse
                                 </Button>
                               )}
@@ -1265,7 +1265,7 @@ export default function AdminDashboard() {
                                       ? "bg-yellow-100 dark:bg-yellow-900/20"
                                       : "bg-blue-100 dark:bg-blue-900/20"
                               }`}>
-                              <Users className='h-4 w-4 text-purple-600 dark:text-purple-400' />
+                              <Users className='h-4 w-4 text-teal-600 dark:text-teal-400' />
                             </div>
                             <div>
                               <p className='font-medium text-gray-900 dark:text-white'>
